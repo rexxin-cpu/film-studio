@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Video Skill Prompt Generator | Hollywood Film & Scene Tools</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #141b2d;
+      --surface2: #1c2538;
+      --border: #2a3548;
+      --text: #e8eef7;
+      --muted: #8b9bb4;
+      --accent: #6366f1;
+      --accent2: #22d3ee;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: sticky; top: 0; z-index: 20; }
+    }
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .logo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo span { display: block; font-size: 0.75rem; font-weight: 500; color: var(--muted); -webkit-text-fill-color: var(--muted); margin-top: 2px; }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: var(--surface2); color: var(--text); }
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(34,211,238,0.1));
+      border-color: rgba(99,102,241,0.4);
+      color: var(--text);
+      font-weight: 600;
+    }
+    .nav-btn .badge {
+      margin-left: auto;
+      font-size: 0.65rem;
+      background: var(--surface2);
+      padding: 2px 6px;
+      border-radius: 999px;
+      color: var(--accent2);
+    }
+    .main {
+      padding: 1.5rem 1.75rem 3rem;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    h1 { font-size: 1.6rem; margin-bottom: 0.35rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card h2 .num {
+      background: var(--accent);
+      color: white;
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+    .btn:active { transform: none; }
+    .btn-secondary {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { border-color: var(--accent); box-shadow: none; }
+    .btn-success { background: linear-gradient(135deg, var(--success), #059669); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+    .output-box {
+      background: #0a0e17;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 480px;
+      overflow-y: auto;
+      color: #c8d4e8;
+      margin-top: 0.75rem;
+    }
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: rgba(34,211,238,0.08);
+      border-left: 3px solid var(--accent2);
+      padding: 0.7rem 0.9rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1.25rem;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(99,102,241,0.2);
+      color: #a5b4fc;
+      margin-right: 0.3rem;
+    }
+    .workflow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .step {
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-start;
+      padding: 0.9rem;
+      background: var(--surface2);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .step strong { display: block; margin-bottom: 0.2rem; }
+    .step p { font-size: 0.88rem; color: var(--muted); }
+    .skill-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .skill-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .skill-card:hover { border-color: var(--accent); }
+    .skill-card h4 { font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .skill-card p { font-size: 0.78rem; color: var(--muted); }
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--success);
+      color: white;
+      padding: 0.75rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .footer-note {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        Video Skill Prompt Lab
+        <span>Hollywood 5s + Open-World + Fight + Romance</span>
+      </div>
+      <button class="nav-btn active" data-panel="workflow">📋 Alur Kerja (Mulai di sini)</button>
+      <button class="nav-btn" data-panel="skill1">🎬 Skill 1 — Hollywood 5s (Padat)</button>
+      <button class="nav-btn" data-panel="skill7">🎥 Skill 7 — Hollywood 5s (Lengkap)</button>
+      <button class="nav-btn" data-panel="skill8">💕 Skill 8 — Drama Romantis 5s</button>
+      <button class="nav-btn" data-panel="skill2">🌆 Skill 2 — Open-World 6s</button>
+      <button class="nav-btn" data-panel="skill3">➡️ Skill 3 — Video Extension 6s</button>
+      <button class="nav-btn" data-panel="skill4">🥊 Skill 4 — Fight 1 (Pembuka)</button>
+      <button class="nav-btn" data-panel="skill5">🔥 Skill 5 — Fight 2 (Lanjutan)</button>
+      <button class="nav-btn" data-panel="skill6">💥 Skill 6 — Fight 3 (Klimaks)</button>
+      <button class="nav-btn" data-panel="mapper">🗺️ Pemetaan Scene → Skill</button>
+    </aside>
+
+    <main class="main">
+      <!-- WORKFLOW -->
+      <div id="workflow" class="panel active">
+        <h1>Alur Kerja Pembuatan Film AI</h1>
+        <p class="subtitle">Ikuti urutan ini agar scene 5 detik tersambung dan siap di-generate video.</p>
+
+        <div class="card">
+          <h2><span class="num">1</span> Buat Struktur Film (Skill 1 atau 7)</h2>
+          <div class="workflow-steps">
+            <div class="step">
+              <div class="step-num">A</div>
+              <div>
+                <strong>Isi form Skill 1 (atau Skill 7)</strong>
+                <p>Masukkan judul film + ide singkat. Generate prompt lengkap, lalu <b>copy</b> dan tempel ke ChatGPT / Claude / Grok.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">B</div>
+              <div>
+                <strong>Dapatkan Story Bible + 10 scene</strong>
+                <p>AI akan menghasilkan logline, character lock, location lock, dan 10 scene (setiap scene 5 detik) lengkap dengan prompt gambar &amp; video.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">2</span> Tentukan Skill Video per Scene</h2>
+          <p style="margin-bottom:0.75rem;color:var(--muted);font-size:0.9rem;">Setelah punya daftar scene, gunakan pemetaan berikut:</p>
+          <div class="skill-map">
+            <div class="skill-card" onclick="showPanel('skill1')">
+              <h4>Skill 1 / 7</h4>
+              <p>Scene sinematik umum, dialog, drama, suspense. Sudah ada prompt video di dalam output Skill 1.</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill2')">
+              <h4>Skill 2 — Open-World</h4>
+              <p>Kejar-kejaran, kendaraan, kota neon, aksi padat 6 detik vertikal.</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill3')">
+              <h4>Skill 3 — Extension</h4>
+              <p>Lanjutkan video sebelumnya (continuity dari frame terakhir).</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill4')">
+              <h4>Skill 4 — Fight 1</h4>
+              <p>Pembuka pertarungan, 6 detik, karakter + end state.</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill5')">
+              <h4>Skill 5 — Fight 2</h4>
+              <p>Lanjutan fight, jaga continuity luka &amp; darah.</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill6')">
+              <h4>Skill 6 — Fight 3</h4>
+              <p>Klimaks &amp; penutup fight.</p>
+            </div>
+            <div class="skill-card" onclick="showPanel('skill8')">
+              <h4>Skill 8 — Romance</h4>
+              <p>Drama romantis dewasa, sensual non-eksplisit, 5 detik.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">3</span> Generate &amp; Copy Prompt per Scene</h2>
+          <p style="color:var(--muted);font-size:0.9rem;">Buka tab skill yang cocok → isi form → klik Generate → Copy prompt → tempel ke AI generator video (Runway, Kling, Luma, Pika, dll) atau ke LLM lagi untuk refine.</p>
+        </div>
+
+        <div class="hint">
+          Tips: Simpan Character Lock &amp; Continuity Ledger dari Skill 1 di notepad. Selalu pakai frame terakhir scene sebelumnya sebagai input Image-to-Video agar continuity terjaga.
+        </div>
+      </div>
+
+      <!-- SKILL 1 -->
+      <div id="skill1" class="panel">
+        <h1>Skill 1 — Hollywood Film 5 Detik (Versi Padat)</h1>
+        <p class="subtitle">Ubah ide menjadi rangkaian scene 5 detik yang tersambung. Output siap copy ke LLM.</p>
+
+        <div class="card">
+          <h2>Form Input Judul &amp; Ide Film</h2>
+          <div class="grid-2">
+            <div>
+              <label>Judul Film</label>
+              <input type="text" id="s1-title" placeholder="Contoh: Bayangan di Pelabuhan Neon" />
+            </div>
+            <div>
+              <label>Jumlah Scene (default 10)</label>
+              <input type="number" id="s1-scenes" value="10" min="4" max="60" />
+            </div>
+          </div>
+          <label>Ide / Logline Singkat (opsional tapi disarankan)</label>
+          <textarea id="s1-idea" placeholder="Seorang detektif yang kecewa mengejar pembunuh bayaran di kota pelabuhan tropis yang penuh korupsi. Genre neo-noir, tone gelap dan tegang."></textarea>
+          <div class="grid-2">
+            <div>
+              <label>Rasio Aspek</label>
+              <select id="s1-ratio">
+                <option value="16:9">16:9 (Sinematik horizontal)</option>
+                <option value="9:16">9:16 (Vertikal / Reels)</option>
+              </select>
+            </div>
+            <div>
+              <label>Bahasa Penjelasan</label>
+              <select id="s1-lang">
+                <option value="id">Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill1()">✨ Generate Prompt Skill 1</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s1-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s1-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 7 -->
+      <div id="skill7" class="panel">
+        <h1>Skill 7 — Hollywood Film 5 Detik (Versi Lengkap)</h1>
+        <p class="subtitle">Versi lebih detail dengan checklist &amp; tips produksi. Cocok untuk film panjang.</p>
+
+        <div class="card">
+          <h2>Form Input</h2>
+          <div class="grid-2">
+            <div>
+              <label>Judul Film</label>
+              <input type="text" id="s7-title" placeholder="Contoh: The Last Rain in Jakarta 2041" />
+            </div>
+            <div>
+              <label>Jumlah Scene</label>
+              <input type="number" id="s7-scenes" value="10" min="4" max="240" />
+            </div>
+          </div>
+          <label>Ide / Deskripsi</label>
+          <textarea id="s7-idea" placeholder="Cerita singkat, genre, tone, karakter utama..."></textarea>
+          <div class="grid-2">
+            <div>
+              <label>Rasio</label>
+              <select id="s7-ratio">
+                <option value="16:9">16:9</option>
+                <option value="9:16">9:16</option>
+              </select>
+            </div>
+            <div>
+              <label>Mulai dari Scene</label>
+              <input type="number" id="s7-start" value="1" min="1" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill7()">✨ Generate Prompt Skill 7</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s7-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s7-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 8 -->
+      <div id="skill8" class="panel">
+        <h1>Skill 8 — Drama Romantis Dewasa 5 Detik</h1>
+        <p class="subtitle">Sensual, elegan, non-eksplisit. Semua karakter 25+.</p>
+
+        <div class="card">
+          <h2>Form Input</h2>
+          <div class="grid-2">
+            <div>
+              <label>Judul / Ide Romantis</label>
+              <input type="text" id="s8-title" placeholder="Contoh: Hujan di Balkon Hotel" />
+            </div>
+            <div>
+              <label>Jumlah Scene</label>
+              <input type="number" id="s8-scenes" value="10" min="4" max="40" />
+            </div>
+          </div>
+          <label>Deskripsi Hubungan &amp; Setting</label>
+          <textarea id="s8-idea" placeholder="Dua orang dewasa (usia 30-an) yang bertemu lagi setelah 5 tahun. Setting hotel mewah hujan, tone sensual elegan."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill8()">✨ Generate Prompt Skill 8</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s8-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s8-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 2 -->
+      <div id="skill2" class="panel">
+        <h1>Skill 2 — Open-World Short Video 6 Detik</h1>
+        <p class="subtitle">Satu judul → satu prompt video padat aksi, vertikal 9:16, gaya AAA open-world.</p>
+
+        <div class="card">
+          <h2>Form Input (hanya judul)</h2>
+          <label>Judul / Situasi Singkat</label>
+          <input type="text" id="s2-title" placeholder="Contoh: Kejar-kejaran motor di gang neon hujan" />
+          <label>Catatan tambahan (opsional)</label>
+          <textarea id="s2-note" placeholder="Misal: karakter wanita, waktu malam, ada drone..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill2()">✨ Generate Prompt Skill 2</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s2-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s2-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 3 -->
+      <div id="skill3" class="panel">
+        <h1>Skill 3 — Video Extension (Lanjutan 6 Detik)</h1>
+        <p class="subtitle">Lanjutkan dari frame terakhir video sebelumnya tanpa jeda.</p>
+
+        <div class="card">
+          <h2>Form Continuity</h2>
+          <label>Deskripsi / Prompt Video 1 (atau frame terakhir)</label>
+          <textarea id="s3-prev" placeholder="Paste deskripsi detik 5-6 video sebelumnya: posisi karakter, arah, kamera, cuaca, pakaian..."></textarea>
+          <label>Ide lanjutan (opsional — kosongkan = AI tentukan sendiri)</label>
+          <textarea id="s3-idea" placeholder="Misal: muncul rintangan baru, lawan, atau beralih ke jalan raya..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill3()">✨ Generate Prompt Skill 3</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s3-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s3-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 4 -->
+      <div id="skill4" class="panel">
+        <h1>Skill 4 — Fight Video 1 (Pembuka Pertarungan)</h1>
+        <p class="subtitle">6 detik pembuka duel. Hasilkan Character Lock + End State untuk dilanjutkan ke Skill 5 &amp; 6.</p>
+
+        <div class="card">
+          <h2>Form Input</h2>
+          <label>Judul / Situasi Fight</label>
+          <input type="text" id="s4-title" placeholder="Contoh: Duel di gang hujan neon" />
+          <label>Detail karakter utama &amp; lawan (opsional)</label>
+          <textarea id="s4-char" placeholder="Misal: pria 32 thn jaket bomber hijau, lawan botak bertato..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill4()">✨ Generate Prompt Skill 4</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s4-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s4-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 5 -->
+      <div id="skill5" class="panel">
+        <h1>Skill 5 — Fight Video 2 (Lanjutan)</h1>
+        <p class="subtitle">Lanjutkan dari End State Skill 4. Character Lock &amp; luka harus identik.</p>
+
+        <div class="card">
+          <h2>Form Continuity Fight</h2>
+          <label>Character Lock + End State dari Video 1</label>
+          <textarea id="s5-lock" placeholder="Paste CHARACTER LOCK dan END STATE dari output Skill 4..."></textarea>
+          <label>Ide lanjutan (opsional)</label>
+          <textarea id="s5-idea" placeholder="Misal: lawan kedua muncul, ambil senjata, pindah ke atap..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill5()">✨ Generate Prompt Skill 5</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s5-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s5-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- SKILL 6 -->
+      <div id="skill6" class="panel">
+        <h1>Skill 6 — Fight Video 3 (Klimaks)</h1>
+        <p class="subtitle">Penutup fight. Akumulasi luka, klimaks, lalu resolusi tanpa gore ekstrem.</p>
+
+        <div class="card">
+          <h2>Form Klimaks</h2>
+          <label>Character Lock + Injury Continuity dari Video 1 &amp; 2</label>
+          <textarea id="s6-lock" placeholder="Paste Character Lock + Injury & Blood Continuity dari Skill 5..."></textarea>
+          <label>Ide klimaks (opsional)</label>
+          <textarea id="s6-idea" placeholder="Misal: serangan penentu, lawan tumbang, karakter berdiri terengah..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="generateSkill6()">✨ Generate Prompt Skill 6</button>
+            <button class="btn btn-secondary" onclick="copyOutput('s6-output')">📋 Copy Prompt</button>
+          </div>
+          <div id="s6-output" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- MAPPER -->
+      <div id="mapper" class="panel">
+        <h1>Pemetaan Scene → Skill Video</h1>
+        <p class="subtitle">Isi daftar scene dari Skill 1, lalu tentukan skill yang paling cocok per scene.</p>
+
+        <div class="card">
+          <h2>Tambah Scene</h2>
+          <div class="grid-2">
+            <div>
+              <label>Nomor Scene</label>
+              <input type="number" id="map-num" value="1" min="1" />
+            </div>
+            <div>
+              <label>Skill yang Cocok</label>
+              <select id="map-skill">
+                <option value="skill1">Skill 1 / 7 (Sinematik umum)</option>
+                <option value="skill2">Skill 2 (Open-World 6s)</option>
+                <option value="skill3">Skill 3 (Extension 6s)</option>
+                <option value="skill4">Skill 4 (Fight 1)</option>
+                <option value="skill5">Skill 5 (Fight 2)</option>
+                <option value="skill6">Skill 6 (Fight 3)</option>
+                <option value="skill8">Skill 8 (Romance 5s)</option>
+              </select>
+            </div>
+          </div>
+          <label>Ringkasan Scene (dari output Skill 1)</label>
+          <textarea id="map-summary" placeholder="Contoh: Rena berlari di pasar malam sambil dikejar sedan hitam..."></textarea>
+          <label>Catatan Continuity / Frame terakhir</label>
+          <textarea id="map-cont" placeholder="Posisi, arah, luka, kamera di detik 5..."></textarea>
+          <div class="btn-row">
+            <button class="btn" onclick="addMappedScene()">➕ Tambah ke Daftar</button>
+            <button class="btn btn-secondary" onclick="clearMapped()">🗑️ Bersihkan</button>
+            <button class="btn btn-success" onclick="exportMapped()">📥 Export Semua (Copy)</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Daftar Scene + Skill</h2>
+          <div id="mapped-list" style="font-size:0.9rem;color:var(--muted);">Belum ada scene. Tambahkan di atas.</div>
+          <div id="mapped-export" class="output-box" style="display:none;margin-top:1rem;"></div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        Semua skill diambil dari paket “PAKET 8 SKILL VIDEO AI”. Tool ini hanya merakit prompt agar mudah di-copy. Hasil kreatif tetap dihasilkan oleh LLM / video generator yang kamu gunakan.
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast">Tersalin ke clipboard!</div>
+
+  <script>
+    // ========== NAV ==========
+    const panels = document.querySelectorAll('.panel');
+    const navBtns = document.querySelectorAll('.nav-btn');
+    function showPanel(id) {
+      panels.forEach(p => p.classList.remove('active'));
+      navBtns.forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const btn = document.querySelector(`.nav-btn[data-panel="${id}"]`);
+      if (btn) btn.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    navBtns.forEach(btn => {
+      btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+    });
+
+    // ========== TOAST & COPY ==========
+    function showToast(msg = 'Tersalin ke clipboard!') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function copyOutput(id) {
+      const el = document.getElementById(id);
+      if (!el || !el.textContent.trim()) {
+        showToast('Belum ada output untuk di-copy');
+        return;
+      }
+      navigator.clipboard.writeText(el.textContent).then(() => showToast());
+    }
+
+    // ========== SKILL TEXTS (ringkas dari paket) ==========
+    const SKILL1_CORE = `HOLLYWOOD MASTER FILM GENERATOR: 5 SECOND SCENE SYSTEM (PRO)
+
+ROLE
+Kamu sutradara, penulis skenario, sinematografer, dan prompt engineer film Hollywood. Ubah ide pengguna menjadi film utuh dari klip video 5 detik yang saling tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene tidak ada (default 10 scene).
+
+ATURAN DURASI (TIDAK BOLEH DILANGGAR)
+- Setiap scene TEPAT 5 DETIK, satu shot kontinu, tanpa potongan.
+- Total durasi = jumlah scene x 5 detik.
+- Rasio default 16:9 (9:16 jika diminta vertikal, konsisten di semua scene). Resolusi 4K atau tertinggi.
+
+TAHAP 0: STORY BIBLE (SEKALI DI AWAL)
+1. LOGLINE dan GENRE + TONE
+2. STRUKTUR 3 AKT: Akt 1 Setup 25%, Akt 2 Konflik 50%, Akt 3 Klimaks 25%
+3. CHARACTER LOCK tiap tokoh: gender, usia, tinggi, postur, wajah, pakaian tetap, sifat dan cara bergerak. Salin PERSIS ke tiap prompt scene.
+4. LOCATION LOCK: lokasi, waktu, cuaca, palet warna
+5. VISUAL STYLE: lensa, grading, tekstur, tanpa menyebut film atau brand nyata
+6. CONTINUITY LEDGER awal: kondisi karakter, luka, properti, kendaraan
+
+FORMAT SETIAP SCENE
+SCENE XX | 00:00-00:05 | (waktu kumulatif) | Akt X
+1. Story  2. Lokasi  3. Karakter  4. Ekspresi  5. Gerakan tubuh per beat
+6. Gerakan kamera (SATU gerakan utama, sebut shot dan lensa)
+7. Pencahayaan  8. Efek visual
+9. Prompt gambar (English): frame pembuka untuk Image-to-Video
+10. Prompt video (English, 100-170 kata, satu paragraf, memuat 5 micro-beat)
+11. Dialog (0-2 kalimat + waktu, atau "tanpa dialog")
+12. Voice-over (opsional)
+13. Musik dan SFX berlapis
+14. Transisi (posisi, arah pandang, gerakan, kamera di detik 5)
+15. Continuity check (satu baris perubahan Ledger)
+
+KEPADATAN AKSI
+Tiap beat memuat TIGA LAPIS bergerak bersamaan: (1) aksi subjek yang berbeda dari beat sebelumnya, (2) dunia sekitar yang bereaksi, (3) kamera dan efek. Tidak boleh ada beat yang hanya berdiri atau berjalan datar. Satu aksi besar per beat.
+
+TIMELINE 5 MICRO-BEAT (WAJIB)
+- 0-1 Beat 1: lanjutan mulus dari frame terakhir scene sebelumnya, sudah bergerak.
+- 1-2 Beat 2: aksi atau informasi baru muncul.
+- 2-3 Beat 3: aksi utama, puncak gerakan atau emosi.
+- 3-4 Beat 4: reaksi, dampak, perubahan situasi.
+- 4-5 Beat 5: gerakan penutup dan arah menuju scene berikutnya.
+Semua beat dalam SATU shot kontinu.
+
+KUALITAS SINEMATIK
+Variasikan jenis shot antar scene, satu gerakan kamera per scene. Jaga screen direction dan axis 180 derajat. Pacing bergantian tenang dan intens, naik menuju klimaks. Tiap scene memajukan cerita atau mengungkap karakter.
+
+CONTINUITY (WAJIB)
+Scene berikutnya melanjutkan posisi, arah pandang, gerakan, cuaca, properti, luka, dan kamera dari detik 5 scene sebelumnya. Perbarui Ledger tiap scene.
+
+DILARANG
+Durasi bukan 5 detik; mengulang adegan tanpa alasan; mengubah wajah, rambut, tubuh, atau pakaian tanpa alasan cerita; gerakan tidak tersambung; lompat lokasi tanpa transisi; orang nyata, selebriti, logo, merek, plat nomor, musik berhak cipta; teks layar, subtitle, HUD, watermark; gore ekstrem, kekerasan terhadap anak atau hewan, konten seksual eksplisit.
+
+NEGATIVE PROMPT (di setiap scene)
+Low quality, blurry, cartoon, plastic skin, distorted face, face change, outfit change, deformed hands, extra fingers, duplicated characters, floating objects, unnatural movement, flickering, frame glitches, scene cut, camera reset, lighting jump, watermark, subtitles, text, logos, license plates.
+
+MODE KELUARAN
+10 scene per jawaban, akhiri dengan: "Total sejauh ini: X scene = Y detik. Ketik 'lanjut' untuk scene berikutnya." Nomor scene tertentu = tulis ulang hanya scene itu. Setelah scene terakhir, tampilkan RINGKASAN FILM (total scene, durasi, lokasi, catatan penyuntingan).
+
+CHECKLIST
+5 detik tepat; 5 beat terisi dan berbeda; tiga lapis per beat; Lock disalin persis; awal = akhir scene sebelumnya; satu gerakan kamera; cerita maju; tanpa brand/teks/musik berhak cipta; negative prompt ada.`;
+
+    const SKILL7_CORE = `HOLLYWOOD MASTER FILM GENERATOR: 5 SECOND SCENE SYSTEM (PRO) — VERSI LENGKAP
+
+ROLE
+Kamu sutradara, penulis skenario, sinematografer, dan prompt engineer film Hollywood. Ubah ide pengguna menjadi film utuh yang tersusun dari klip video 5 detik yang saling tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene benar-benar tidak ada (default 10 scene).
+
+ATURAN DURASI (TIDAK BOLEH DILANGGAR)
+- Setiap scene TEPAT 5 DETIK, satu shot kontinu, tanpa potongan di dalam scene.
+- Total durasi = jumlah scene x 5 detik.
+- Rasio default 16:9 (sinematik). Jika pengguna meminta vertikal, gunakan 9:16 konsisten di semua scene.
+- Resolusi target 4K atau tertinggi yang didukung generator.
+
+TAHAP 0: STORY BIBLE (SEKALI DI AWAL)
+1. LOGLINE (satu kalimat) dan GENRE + TONE
+2. STRUKTUR 3 AKT dengan pembagian scene: Akt 1 Setup (25%), Akt 2 Konflik dan eskalasi (50%), Akt 3 Klimaks dan resolusi (25%)
+3. CHARACTER LOCK untuk tiap tokoh utama: gender, usia perkiraan, tinggi dan postur, wajah (bentuk, kulit, mata, rambut, ciri khas), pakaian tetap (atasan, bawahan, sepatu, aksesori), sifat dan cara bergerak. Deskripsi ini disalin PERSIS ke setiap prompt scene.
+4. LOCATION LOCK: daftar lokasi, waktu, cuaca, dan palet warna per lokasi
+5. VISUAL STYLE: look sinematik (lensa, grading warna, tekstur), referensi gaya umum tanpa menyebut film atau brand nyata
+6. CONTINUITY LEDGER awal: kondisi karakter, luka, properti, kendaraan
+
+FORMAT SETIAP SCENE (15 bagian lengkap seperti yang ditentukan di skill)
+Gunakan format SCENE XX | 00:00-00:05 | waktu kumulatif | Akt X kemudian isi 1–15 sesuai spesifikasi skill lengkap.
+
+TIMELINE MICRO-BEAT 5 beat per scene wajib.
+CONTINUITY wajib: awal scene = akhir scene sebelumnya.
+NEGATIVE PROMPT selalu disertakan.
+MODE KELUARAN: 10 scene per jawaban, akhiri dengan total scene + "Ketik 'lanjut'". Setelah selesai tampilkan RINGKASAN FILM.`;
+
+    const SKILL8_CORE = `ROMANTIC ADULT DRAMA GENERATOR 18+ (SENSUAL, NON-EKSPLISIT): 5 SECOND SCENE SYSTEM
+
+ROLE
+Kamu sutradara film drama romantis dewasa yang sensual, elegan, dan sinematik. Ubah ide pengguna menjadi rangkaian klip video 5 detik yang tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene tidak ada (default 10).
+
+BATAS KONTEN (WAJIB)
+- Semua karakter fiktif dan dewasa, usia 25 tahun ke atas. Usia ditulis di Character Lock.
+- Tanpa ketelanjangan, tanpa adegan seks, tanpa pose/gerakan seksual, tanpa close-up intim.
+- Interaksi saling setuju dan setara. Pakaian tetap menutup layak.
+- Momen lebih intim dari ciuman hanya DIIMPLIKASIKAN (kamera berpaling, fade to black, lalu scene pagi berikutnya).
+
+SPESIFIKASI: Tiap scene TEPAT 5 DETIK, satu shot kontinu. Rasio 16:9 (atau 9:16). Photorealistic cinematic romantic drama.
+
+STORY BIBLE + FORMAT 15 bagian + 5 MICRO-BEAT + MODUL INTIM sesuai skill.
+NEGATIVE PROMPT: Nudity, undressed, lingerie, explicit content, sexual act, groping intimate areas, genitals, minors, young-looking characters, non-consensual, deformed hands, extra fingers, extra limbs, distorted face, merged faces while kissing, face change, outfit change, duplicated characters, plastic skin, flickering, frame glitches, scene cut, camera reset, watermark, subtitles, text, logos.
+
+MODE KELUARAN: 10 scene per jawaban, lalu "Total sejauh ini... Ketik 'lanjut'."`;
+
+    const SKILL2_CORE = `NAMA: Next-Gen Open-World Short Video Generator (Dense 6s)
+
+PERAN
+Sutradara dan prompt engineer video bergaya game open-world AAA. Ubah SATU JUDUL menjadi satu prompt video siap produksi yang PADAT AKSI, tanpa potongan.
+
+ATURAN INPUT
+Pengguna hanya menulis judul. Jangan bertanya. Judul Indonesia dipahami maknanya; prompt final berbahasa Inggris, penjelasan berbahasa Indonesia.
+
+SPESIFIKASI TETAP
+6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera. Gaya ultra-realistic AAA open-world game, bukan rekaman nyata, bukan kartun.
+
+KEPADATAN AKSI + STRUKTUR 6 BEAT wajib (HOOK → PEMICU → AKSI 1 → AKSI 2 → PUNCAK → PAYOFF).
+Tiap beat TIGA LAPIS: subjek + dunia bereaksi + kamera/efek.
+
+FORMAT OUTPUT PERSIS (10 bagian):
+1. VIDEO TITLE
+2. SCENE CONCEPT
+3. LOCATION AND ENVIRONMENT
+4. MAIN CHARACTER AND VEHICLE
+5. LIGHTING AND WEATHER
+6. CAMERA MOVEMENT
+7. SIX-BEAT ACTION TIMELINE
+8. FINAL VIDEO GENERATION PROMPT (ENGLISH, 150-220 kata)
+9. NEGATIVE PROMPT
+10. AUDIO AND SOUND DESIGN
+
+NEGATIVE PROMPT tetap seperti di skill.`;
+
+    const SKILL3_CORE = `SKILL: VIDEO EXTENSION (LANJUTAN ADEGAN 6 DETIK, VERSI PADAT)
+
+ROLE
+Sutradara dan prompt engineer yang melanjutkan video 1 menjadi video 2, tepat setelah detik terakhir video 1. Padat aksi, tanpa potongan dan tanpa jeda.
+
+LANGKAH WAJIB
+1. Analisis detik 5-6 video 1.
+2. Video 2 mulai dari frame terakhir video 1 dan melanjutkan momentum.
+3. Tentukan SATU aksi baru sebagai konsekuensi.
+
+SPESIFIKASI: 6 detik, 9:16, 4K, satu shot, gaya original AAA open-world. Karakter/kendaraan/pakaian/cuaca IDENTIK.
+
+FORMAT OUTPUT PERSIS 9 bagian:
+1. CONTINUITY ANALYSIS
+2. NEXT SCENE CONCEPT
+3. CONTINUITY LOCK
+4. CAMERA MOVEMENT
+5. SIX-BEAT ACTION TIMELINE
+6. FINAL EXTENSION PROMPT (ENGLISH, diawali "Continue seamlessly from the last frame...")
+7. NEGATIVE PROMPT
+8. AUDIO
+9. CATATAN GENERATOR`;
+
+    const SKILL4_CORE = `SKILL 1 PERTARUNGAN: BUAT VIDEO 1 (VERSI PADAT)
+
+ROLE
+Sutradara aksi dan prompt engineer video bergaya game open-world AAA realistis. Ubah SATU JUDUL menjadi prompt pertarungan 6 detik yang padat aksi. Jangan bertanya.
+
+SPESIFIKASI: 6 detik, 9:16, 4K, satu shot. Ultra-realistic original AAA open-world game style.
+
+CHARACTER LOCK wajib (gender, usia, tinggi, postur, wajah, pakaian, gaya bertarung + lawan).
+
+STRUKTUR 6 BEAT fight + EFEK DARAH terkendali.
+
+FORMAT OUTPUT PERSIS 11 bagian termasuk END STATE.
+
+ATURAN DARAH: boleh bibir pecah, hidung berdarah, gores, memar, noda; TIDAK BOLEH mutilasi, organ, close-up mengerikan, kekerasan anak/hewan.`;
+
+    const SKILL5_CORE = `SKILL 2 PERTARUNGAN: PERPANJANG KE VIDEO 2 (VERSI PADAT)
+
+ROLE
+Melanjutkan VIDEO 1 menjadi VIDEO 2 dari frame terakhir, padat aksi tanpa jeda.
+
+WAJIB: Character Lock identik, luka & darah video 1 tetap ada dan boleh bertambah.
+
+FORMAT OUTPUT 10 bagian termasuk INJURY & BLOOD CONTINUITY dan END STATE untuk video 3.`;
+
+    const SKILL6_CORE = `SKILL 3 PERTARUNGAN: PERPANJANG KE VIDEO 3 (KLIMAKS, VERSI PADAT)
+
+ROLE
+Melanjutkan VIDEO 2 menjadi VIDEO 3 (klimaks dan penutup).
+
+WAJIB: Karakter & luka terakumulasi konsisten. Penutup tuntas tanpa gore ekstrem.
+
+FORMAT OUTPUT 10 bagian + CATATAN PENYATUAN (sambung 1+2+3 jadi 18 detik).`;
+
+    // ========== GENERATORS ==========
+    function generateSkill1() {
+      const title = document.getElementById('s1-title').value.trim() || 'Film Tanpa Judul';
+      const idea = document.getElementById('s1-idea').value.trim();
+      const scenes = document.getElementById('s1-scenes').value || 10;
+      const ratio = document.getElementById('s1-ratio').value;
+      const lang = document.getElementById('s1-lang').value;
+
+      let userMsg = `Buatkan film Hollywood lengkap dengan judul: "${title}".\n`;
+      userMsg += `Jumlah scene: ${scenes}.\n`;
+      userMsg += `Rasio aspek: ${ratio}.\n`;
+      if (idea) userMsg += `Ide / logline: ${idea}\n`;
+      userMsg += `\nIkuti SEMUA aturan Skill 1 di atas. Mulai dari Story Bible, lalu tulis scene 1 sampai ${Math.min(scenes, 10)}. Jika lebih dari 10, saya akan ketik "lanjut".`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 1 ===\n\n${SKILL1_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s1-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 1 siap — silakan Copy');
+    }
+
+    function generateSkill7() {
+      const title = document.getElementById('s7-title').value.trim() || 'Film Tanpa Judul';
+      const idea = document.getElementById('s7-idea').value.trim();
+      const scenes = document.getElementById('s7-scenes').value || 10;
+      const ratio = document.getElementById('s7-ratio').value;
+      const start = document.getElementById('s7-start').value || 1;
+
+      let userMsg = `Buatkan film Hollywood (versi lengkap Skill 7) dengan judul: "${title}".\n`;
+      userMsg += `Jumlah total scene: ${scenes}. Mulai dari scene ${start}.\n`;
+      userMsg += `Rasio: ${ratio}.\n`;
+      if (idea) userMsg += `Ide: ${idea}\n`;
+      userMsg += `\nIkuti format 15 bagian per scene, Story Bible di awal, continuity ketat. Tulis maksimal 10 scene per respons.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 7 ===\n\n${SKILL7_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s7-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 7 siap');
+    }
+
+    function generateSkill8() {
+      const title = document.getElementById('s8-title').value.trim() || 'Drama Romantis';
+      const idea = document.getElementById('s8-idea').value.trim();
+      const scenes = document.getElementById('s8-scenes').value || 10;
+
+      let userMsg = `Buatkan rangkaian drama romantis dewasa 5 detik dengan judul/ide: "${title}".\n`;
+      userMsg += `Jumlah scene: ${scenes}.\n`;
+      if (idea) userMsg += `Detail: ${idea}\n`;
+      userMsg += `\nSemua karakter fiktif usia 25+. Ikuti batas konten non-eksplisit. Mulai dari Story Bible lalu scene 1–10.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 8 ===\n\n${SKILL8_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s8-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 8 siap');
+    }
+
+    function generateSkill2() {
+      const title = document.getElementById('s2-title').value.trim();
+      if (!title) { showToast('Isi judul dulu'); return; }
+      const note = document.getElementById('s2-note').value.trim();
+
+      let userMsg = `Judul: ${title}\n`;
+      if (note) userMsg += `Catatan tambahan: ${note}\n`;
+      userMsg += `\nBuat output lengkap 10 bagian sesuai format Skill 2. Prompt final video harus 150-220 kata, 6 seconds, vertical 9:16, single continuous shot, 4K.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 2 ===\n\n${SKILL2_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s2-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 2 siap');
+    }
+
+    function generateSkill3() {
+      const prev = document.getElementById('s3-prev').value.trim();
+      if (!prev) { showToast('Isi deskripsi video sebelumnya'); return; }
+      const idea = document.getElementById('s3-idea').value.trim();
+
+      let userMsg = `Video sebelumnya (detik 5-6 / frame terakhir):\n${prev}\n\n`;
+      if (idea) userMsg += `Ide lanjutan: ${idea}\n`;
+      else userMsg += `Ide lanjutan: tentukan sendiri sebagai konsekuensi natural.\n`;
+      userMsg += `\nBuat extension 6 detik sesuai format Skill 3. Prompt diawali "Continue seamlessly from the last frame of the previous clip..."`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 3 ===\n\n${SKILL3_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s3-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 3 siap');
+    }
+
+    function generateSkill4() {
+      const title = document.getElementById('s4-title').value.trim();
+      if (!title) { showToast('Isi judul fight'); return; }
+      const char = document.getElementById('s4-char').value.trim();
+
+      let userMsg = `Judul / situasi: ${title}\n`;
+      if (char) userMsg += `Detail karakter: ${char}\n`;
+      userMsg += `\nBuat VIDEO 1 (pembuka) sesuai format Skill 4 lengkap 11 bagian, termasuk CHARACTER LOCK dan END STATE.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 4 ===\n\n${SKILL4_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s4-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 4 siap');
+    }
+
+    function generateSkill5() {
+      const lock = document.getElementById('s5-lock').value.trim();
+      if (!lock) { showToast('Paste Character Lock + End State dulu'); return; }
+      const idea = document.getElementById('s5-idea').value.trim();
+
+      let userMsg = `Dari Video 1:\n${lock}\n\n`;
+      if (idea) userMsg += `Ide lanjutan: ${idea}\n`;
+      else userMsg += `Ide lanjutan: tentukan sendiri.\n`;
+      userMsg += `\nBuat VIDEO 2 sesuai format Skill 5. Luka & darah harus berlanjut.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 5 ===\n\n${SKILL5_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s5-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 5 siap');
+    }
+
+    function generateSkill6() {
+      const lock = document.getElementById('s6-lock').value.trim();
+      if (!lock) { showToast('Paste continuity dari video 1 & 2'); return; }
+      const idea = document.getElementById('s6-idea').value.trim();
+
+      let userMsg = `Continuity dari Video 1 & 2:\n${lock}\n\n`;
+      if (idea) userMsg += `Ide klimaks: ${idea}\n`;
+      else userMsg += `Ide klimaks: tentukan sendiri sebagai penutup tuntas.\n`;
+      userMsg += `\nBuat VIDEO 3 (klimaks) sesuai format Skill 6. Sertakan catatan penyatuan 18 detik.`;
+
+      const full = `=== SYSTEM / INSTRUKSI SKILL 6 ===\n\n${SKILL6_CORE}\n\n=== PERMINTAAN PENGGUNA ===\n\n${userMsg}`;
+      const out = document.getElementById('s6-output');
+      out.style.display = 'block';
+      out.textContent = full;
+      showToast('Prompt Skill 6 siap');
+    }
+
+    // ========== MAPPER ==========
+    let mappedScenes = [];
+    function addMappedScene() {
+      const num = document.getElementById('map-num').value;
+      const skill = document.getElementById('map-skill').value;
+      const summary = document.getElementById('map-summary').value.trim();
+      const cont = document.getElementById('map-cont').value.trim();
+      if (!summary) { showToast('Isi ringkasan scene'); return; }
+
+      const skillNames = {
+        skill1: 'Skill 1/7 — Sinematik 5s',
+        skill2: 'Skill 2 — Open-World 6s',
+        skill3: 'Skill 3 — Extension 6s',
+        skill4: 'Skill 4 — Fight 1',
+        skill5: 'Skill 5 — Fight 2',
+        skill6: 'Skill 6 — Fight 3',
+        skill8: 'Skill 8 — Romance 5s'
+      };
+
+      mappedScenes.push({ num, skill, skillName: skillNames[skill], summary, cont });
+      renderMapped();
+      document.getElementById('map-num').value = Number(num) + 1;
+      document.getElementById('map-summary').value = '';
+      document.getElementById('map-cont').value = '';
+      showToast('Scene ditambahkan');
+    }
+    function renderMapped() {
+      const list = document.getElementById('mapped-list');
+      if (!mappedScenes.length) {
+        list.innerHTML = 'Belum ada scene. Tambahkan di atas.';
+        return;
+      }
+      list.innerHTML = mappedScenes.map((s, i) => `
+        <div style="padding:0.7rem;background:var(--surface2);border-radius:8px;margin-bottom:0.5rem;border:1px solid var(--border);">
+          <strong>Scene ${s.num}</strong> → <span class="tag">${s.skillName}</span><br>
+          <span style="font-size:0.85rem;">${s.summary}</span>
+          ${s.cont ? `<br><span style="font-size:0.8rem;color:var(--accent2);">Cont: ${s.cont}</span>` : ''}
+        </div>
+      `).join('');
+    }
+    function clearMapped() {
+      mappedScenes = [];
+      renderMapped();
+      document.getElementById('mapped-export').style.display = 'none';
+      showToast('Daftar dibersihkan');
+    }
+    function exportMapped() {
+      if (!mappedScenes.length) { showToast('Belum ada data'); return; }
+      let txt = '=== PEMETAAN SCENE → SKILL VIDEO ===\n\n';
+      mappedScenes.forEach(s => {
+        txt += `SCENE ${s.num}\nSkill: ${s.skillName}\nRingkasan: ${s.summary}\n`;
+        if (s.cont) txt += `Continuity: ${s.cont}\n`;
+        txt += '\n';
+      });
+      txt += '\n--- Cara pakai ---\n1. Buka tab skill yang sesuai.\n2. Isi form dengan ringkasan + continuity di atas.\n3. Generate & copy prompt ke LLM / video AI.';
+      const out = document.getElementById('mapped-export');
+      out.style.display = 'block';
+      out.textContent = txt;
+      navigator.clipboard.writeText(txt).then(() => showToast('Export tersalin'));
+    }
+  </script>
+</body>
+</html>
