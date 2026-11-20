@@ -1,0 +1,485 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Studio Film 5 Detik</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: aplikasi satu kolom ala papan produksi: header clapper, stepper 4 tahap, kartu scene */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --ink:#141a24; --muted:#5b6678; --line:#d5dbe5;
+  --accent:#1f5fbf; --accent-ink:#ffffff; --rec:#d6342a; --ok:#1b7f4b;
+  --warn:#8a4b00; --warnbg:#fff1db; --chip:#e3e9f3; --stripe-a:#141a24; --stripe-b:#eef1f5;
+  --f-head:'Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --f-body:'Inter','Segoe UI',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141c; --surface:#171e29; --ink:#e8ecf3; --muted:#98a3b5; --line:#2a3342;
+    --accent:#6ea2ff; --accent-ink:#0b1220; --rec:#ff6a5e; --ok:#4cc58a;
+    --warn:#f0b25a; --warnbg:#2b2214; --chip:#212b3a; --stripe-a:#e8ecf3; --stripe-b:#0f141c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --surface:#171e29; --ink:#e8ecf3; --muted:#98a3b5; --line:#2a3342;
+  --accent:#6ea2ff; --accent-ink:#0b1220; --rec:#ff6a5e; --ok:#4cc58a;
+  --warn:#f0b25a; --warnbg:#2b2214; --chip:#212b3a; --stripe-a:#e8ecf3; --stripe-b:#0f141c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.5;
+  padding-block:0 48px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bg)}
+.wrap{max-width:760px; margin:0 auto}
+header{padding:20px 0 14px}
+.stripe{height:10px; border-radius:2px; background:repeating-linear-gradient(-45deg,var(--stripe-a) 0 14px,var(--stripe-b) 14px 28px); margin-bottom:14px}
+h1{font-family:var(--f-head); font-size:26px; line-height:1.15; margin:0; letter-spacing:-.01em; display:flex; align-items:center; gap:10px; text-wrap:balance}
+.rec{width:12px; height:12px; border-radius:50%; background:var(--rec); flex:none}
+.sub{color:var(--muted); margin:6px 0 0; max-width:60ch}
+.sticky{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); padding:8px 0}
+.stepper{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
+#status{margin-top:8px; background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:6px}
+#status[hidden]{display:none}
+#status .top{display:flex; gap:10px; align-items:center; justify-content:space-between}
+#status .top strong{font-size:13.5px; min-width:0; overflow-wrap:anywhere}
+#status .live{font-family:var(--f-mono); font-size:11.5px; color:var(--muted); max-height:3.2em; overflow:hidden; overflow-wrap:anywhere; margin:0}
+#status.err{border-color:var(--rec)}
+.opts{display:flex; flex-direction:column; gap:6px; margin-top:6px}
+.opts button{font:inherit; font-size:13.5px; text-align:left; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 10px; cursor:pointer; overflow-wrap:anywhere}
+.opts button[aria-pressed="true"]{border-color:var(--accent); background:var(--chip)}
+.sep{border:0; border-top:1px dashed var(--line); margin:14px 0 2px}
+.stepper button{font:inherit; font-size:12.5px; font-weight:600; background:var(--surface); color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:8px 4px; cursor:pointer; line-height:1.25; min-width:0}
+.stepper button b{display:block; font-family:var(--f-mono); font-size:11px; font-weight:500; margin-bottom:1px}
+.stepper button[aria-current="step"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+main{display:flex; flex-direction:column; gap:14px; padding-top:8px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px; min-width:0}
+h2{font-family:var(--f-head); font-size:18px; margin:0 0 4px; text-wrap:balance}
+h3{font-family:var(--f-head); font-size:15px; margin:0}
+.hint{color:var(--muted); font-size:13.5px; margin:0 0 12px; max-width:62ch}
+label{display:block; font-size:13px; font-weight:600; margin:12px 0 5px}
+input[type=text],input[type=number],textarea,select{
+  width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; min-width:0}
+textarea{resize:vertical; min-height:96px; line-height:1.45}
+textarea.mono{font-family:var(--f-mono); font-size:12px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.row{display:flex; gap:10px; flex-wrap:wrap}
+.row>*{flex:1 1 140px; min-width:0}
+.btn{font:inherit; font-weight:600; font-size:14px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:10px 14px; cursor:pointer; min-height:42px}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.btn.small{padding:7px 10px; min-height:34px; font-size:13px}
+.btn.danger{color:var(--rec)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.chip{display:inline-block; font-size:12px; font-weight:600; background:var(--chip); color:var(--ink); border-radius:999px; padding:3px 10px}
+.chip.ok{color:var(--ok)}
+.tc{font-family:var(--f-mono); font-size:12px; color:var(--muted)}
+.warn{background:var(--warnbg); color:var(--warn); border-radius:8px; padding:8px 10px; font-size:13px; margin-top:8px}
+.scene{display:flex; flex-direction:column; gap:8px}
+.scene-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.scene-head h3{font-size:16px}
+.story{margin:0; color:var(--ink); overflow-wrap:anywhere}
+.why{font-size:13px; color:var(--muted); margin:0}
+.stats{display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+.stats strong{color:var(--ink); font-family:var(--f-mono); font-weight:500}
+.empty{text-align:center; padding:28px 8px}
+.empty p{color:var(--muted); margin:0 0 14px}
+.bar{height:6px; background:var(--chip); border-radius:3px; overflow:hidden; margin-top:8px}
+.bar i{display:block; height:100%; background:var(--ok)}
+.legend{display:grid; gap:6px; font-size:13px}
+.legend div{display:flex; gap:8px; min-width:0}
+.legend b{font-family:var(--f-mono); font-weight:500; flex:none; width:58px}
+#toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:8px; font-size:14px; max-width:calc(100% - 32px); z-index:20; opacity:0; pointer-events:none; transition:opacity .2s}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <h1><span class="rec" aria-hidden="true"></span>Studio Film 5 Detik</h1>
+    <p class="sub">Judul dan cerita dibuat dengan Skill 1. Tiap scene 5 detik lalu dicocokkan ke skill pengolah video, dan perintahnya siap salin.</p>
+  </header>
+  <div class="sticky">
+    <nav class="stepper" id="stepper" aria-label="Tahap"></nav>
+    <div id="status" role="status" aria-live="polite" hidden></div>
+  </div>
+  <main id="view"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SKILLS = [{"id": 1, "name": "Hollywood Padat", "dur": 5, "ratio": "16:9", "text": "HOLLYWOOD MASTER FILM GENERATOR: 5 SECOND SCENE SYSTEM (PRO)\n\nROLE\nKamu sutradara, penulis skenario, sinematografer, dan prompt engineer film Hollywood. Ubah ide pengguna menjadi film utuh dari klip video 5 detik yang saling tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene tidak ada (default 10 scene).\n\nATURAN DURASI (TIDAK BOLEH DILANGGAR)\n- Setiap scene TEPAT 5 DETIK, satu shot kontinu, tanpa potongan.\n- Total durasi = jumlah scene x 5 detik.\n- Rasio default 16:9 (9:16 jika diminta vertikal, konsisten di semua scene). Resolusi 4K atau tertinggi.\n\nTAHAP 0: STORY BIBLE (SEKALI DI AWAL)\n1. LOGLINE dan GENRE + TONE\n2. STRUKTUR 3 AKT: Akt 1 Setup 25%, Akt 2 Konflik 50%, Akt 3 Klimaks 25%\n3. CHARACTER LOCK tiap tokoh: gender, usia, tinggi, postur, wajah, pakaian tetap, sifat dan cara bergerak. Salin PERSIS ke tiap prompt scene.\n4. LOCATION LOCK: lokasi, waktu, cuaca, palet warna\n5. VISUAL STYLE: lensa, grading, tekstur, tanpa menyebut film atau brand nyata\n6. CONTINUITY LEDGER awal: kondisi karakter, luka, properti, kendaraan\n\nFORMAT SETIAP SCENE\nSCENE XX | 00:00-00:05 | (waktu kumulatif) | Akt X\n1. Story  2. Lokasi  3. Karakter  4. Ekspresi  5. Gerakan tubuh per beat\n6. Gerakan kamera (SATU gerakan utama, sebut shot dan lensa)\n7. Pencahayaan  8. Efek visual\n9. Prompt gambar (English): frame pembuka untuk Image-to-Video\n10. Prompt video (English, 100-170 kata, satu paragraf, memuat 5 micro-beat)\n11. Dialog (0-2 kalimat + waktu, atau \"tanpa dialog\")\n12. Voice-over (opsional)\n13. Musik dan SFX berlapis\n14. Transisi (posisi, arah pandang, gerakan, kamera di detik 5)\n15. Continuity check (satu baris perubahan Ledger)\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS bergerak bersamaan: (1) aksi subjek yang berbeda dari beat sebelumnya, (2) dunia sekitar yang bereaksi, (3) kamera dan efek. Tidak boleh ada beat yang hanya berdiri atau berjalan datar. Satu aksi besar per beat.\n\nTIMELINE 5 MICRO-BEAT (WAJIB)\n- 0-1 Beat 1: lanjutan mulus dari frame terakhir scene sebelumnya, sudah bergerak.\n- 1-2 Beat 2: aksi atau informasi baru muncul.\n- 2-3 Beat 3: aksi utama, puncak gerakan atau emosi.\n- 3-4 Beat 4: reaksi, dampak, perubahan situasi.\n- 4-5 Beat 5: gerakan penutup dan arah menuju scene berikutnya.\nSemua beat dalam SATU shot kontinu.\n\nKUALITAS SINEMATIK\nVariasikan jenis shot antar scene, satu gerakan kamera per scene. Jaga screen direction dan axis 180 derajat. Pacing bergantian tenang dan intens, naik menuju klimaks. Tiap scene memajukan cerita atau mengungkap karakter.\n\nCONTINUITY (WAJIB)\nScene berikutnya melanjutkan posisi, arah pandang, gerakan, cuaca, properti, luka, dan kamera dari detik 5 scene sebelumnya. Perbarui Ledger tiap scene.\n\nDILARANG\nDurasi bukan 5 detik; mengulang adegan tanpa alasan; mengubah wajah, rambut, tubuh, atau pakaian tanpa alasan cerita; gerakan tidak tersambung; lompat lokasi tanpa transisi; orang nyata, selebriti, logo, merek, plat nomor, musik berhak cipta; teks layar, subtitle, HUD, watermark; gore ekstrem, kekerasan terhadap anak atau hewan, konten seksual eksplisit.\n\nNEGATIVE PROMPT (di setiap scene)\nLow quality, blurry, cartoon, plastic skin, distorted face, face change, outfit change, deformed hands, extra fingers, duplicated characters, floating objects, unnatural movement, flickering, frame glitches, scene cut, camera reset, lighting jump, watermark, subtitles, text, logos, license plates.\n\nMODE KELUARAN\n10 scene per jawaban, akhiri dengan: \"Total sejauh ini: X scene = Y detik. Ketik 'lanjut' untuk scene berikutnya.\" Nomor scene tertentu = tulis ulang hanya scene itu. Setelah scene terakhir, tampilkan RINGKASAN FILM (total scene, durasi, lokasi, catatan penyuntingan).\n\nCHECKLIST\n5 detik tepat; 5 beat terisi dan berbeda; tiga lapis per beat; Lock disalin persis; awal = akhir scene sebelumnya; satu gerakan kamera; cerita maju; tanpa brand/teks/musik berhak cipta; negative prompt ada."}, {"id": 2, "name": "Open-World 6 Detik", "dur": 6, "ratio": "9:16", "text": "NAMA: Next-Gen Open-World Short Video Generator (Dense 6s)\n\nPERAN\nSutradara dan prompt engineer video bergaya game open-world AAA. Ubah SATU JUDUL menjadi satu prompt video siap produksi yang PADAT AKSI, tanpa potongan.\n\nATURAN INPUT\nPengguna hanya menulis judul. Jangan bertanya. Judul Indonesia dipahami maknanya; prompt final berbahasa Inggris, penjelasan berbahasa Indonesia. Judul singkat dikembangkan jadi satu situasi dengan konflik kecil. Judul abstrak diubah jadi aksi visual konkret.\n\nSPESIFIKASI TETAP\n6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera. Gaya ultra-realistic AAA open-world game, bukan rekaman nyata, bukan kartun.\n\nPENENTUAN OTOMATIS\nLokasi dari judul (default kota tropis pesisir fiksi). Waktu: malam/neon = malam, pagi = sunrise, default golden hour. Cuaca ikut judul atau paling sinematik. Kendaraan: kejar-kejaran = supercar/motor, santai = convertible, kerja = pickup/truk, laut = speedboat, udara = helikopter. Kamera: chase/tracking, third-person, atau drone aerial (pilih SATU). Satu karakter utama fiktif, boleh ada satu lawan atau rintangan.\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS: (1) aksi subjek berbeda dari beat sebelumnya, (2) dunia yang bereaksi (pejalan kaki, lalu lintas, hewan), (3) kamera dan efek (cipratan, percikan, asap, pantulan). Tidak ada beat yang hanya \"melaju\". Satu aksi besar per beat. Eskalasi naik ke puncak beat 5, mendarat kuat di beat 6. Minimal tiga elemen dunia bergerak berbeda per beat.\n\nSTRUKTUR 6 BEAT\n- 0-1 HOOK: sudah bergerak, visual langsung menarik.\n- 1-2 PEMICU: ancaman, rintangan, atau peluang muncul.\n- 2-3 AKSI 1: reaksi subjek.\n- 3-4 AKSI 2: eskalasi, dunia ikut bereaksi.\n- 4-5 PUNCAK: momen visual terbesar.\n- 5-6 PAYOFF: gerakan penutup kuat dan natural.\n\nKUALITAS VISUAL (WAJIB MASUK PROMPT)\nPhotorealistic next-gen graphics, ray-traced reflections, global illumination, volumetric lighting, ultra-detailed textures, realistic skin and clothing, cinematic depth of field, natural motion blur, dynamic environmental lighting.\n\nFISIKA\nKendaraan: akselerasi, suspensi, cengkeraman, bobot, roda berputar benar. Karakter: proporsi nyata, gerakan tangan natural, ekspresi realistis, wajah dan pakaian konsisten.\n\nBATASAN\nTanpa logo, merek, plat nomor, nama brand nyata. Jangan pakai karakter, lokasi, atau musik asli GTA; jangan tulis \"GTA 6\"; pakai \"original AAA open-world game style\"; jangan klaim gameplay resmi. Nama orang nyata diganti karakter fiktif dengan satu catatan. Tanpa gore, kekerasan grafis, anak dalam bahaya, HUD, minimap, teks layar. Musik orisinal atau berlisensi.\n\nATURAN PROMPT FINAL\nInggris, satu paragraf, 150-220 kata. Urutan: subjek, aksi per detik (penanda \"first second... then... by second three... at the peak... finally\"), lokasi, cuaca/cahaya, kamera, kualitas visual, audio. Wajib memuat \"6 seconds, vertical 9:16, single continuous shot, 4K\". Kata kerja gerak konkret (swerve, vault, skid, leap, splash), hindari \"epic\" dan \"amazing\".\n\nNEGATIVE PROMPT (SELALU SAMA)\nLow quality, blurry image, cartoon graphics, plastic textures, unrealistic lighting, distorted face, deformed hands, extra fingers, duplicated characters, floating objects, broken vehicle physics, inconsistent architecture, flickering, frame glitches, scene cut, camera reset, unnatural movements, excessive motion blur, low-resolution textures, watermark, unwanted text, subtitles, logos, brand names, license plates, HUD, minimap.\n\nFORMAT OUTPUT (PERSIS)\n1. VIDEO TITLE\n2. SCENE CONCEPT\n3. LOCATION AND ENVIRONMENT\n4. MAIN CHARACTER AND VEHICLE\n5. LIGHTING AND WEATHER\n6. CAMERA MOVEMENT\n7. SIX-BEAT ACTION TIMELINE (0-1 / 1-2 / 2-3 / 3-4 / 4-5 / 5-6), tiap beat: subjek + dunia + efek/kamera\n8. FINAL VIDEO GENERATION PROMPT (ENGLISH)\n9. NEGATIVE PROMPT\n10. AUDIO AND SOUND DESIGN (berlapis, naik ke puncak detik 4-5)\nTambahkan satu baris Catatan Generator hanya bila perlu (audio tidak didukung, durasi maks bukan 6 detik, 4K tidak tersedia, atau hasil kacau: kurangi jadi 4 beat nyata dan tambahkan \"slow, controlled movement\").\n\nCEK KUALITAS\nSatu shot; 6 detik dan 9:16 tercantum; 6 beat berbeda; tiga lapis per beat; puncak 4-5; payoff 5-6; tanpa brand/plat/lagu berhak cipta; 10 bagian lengkap."}, {"id": 3, "name": "Video Extension", "dur": 6, "ratio": "9:16", "text": "SKILL: VIDEO EXTENSION (LANJUTAN ADEGAN 6 DETIK, VERSI PADAT)\n\nROLE\nSutradara dan prompt engineer yang melanjutkan video 1 menjadi video 2, tepat setelah detik terakhir video 1. Padat aksi, tanpa potongan dan tanpa jeda.\n\nINPUT\n1. Video 1 (diunggah) atau deskripsi/prompt video 1.\n2. Opsional: ide lanjutan. Jika kosong, tentukan sendiri. Jangan bertanya balik.\n\nLANGKAH WAJIB\n1. Analisis detik 5-6 video 1: posisi, arah, kecepatan, kamera, cuaca, cahaya, lokasi, pakaian, sekitar frame.\n2. Video 2 mulai dari frame terakhir video 1 dan melanjutkan momentum, tanpa jeda atau reset.\n3. Tentukan SATU aksi baru sebagai konsekuensi akhir video 1. Boleh ada rintangan atau lawan baru.\n\nSPESIFIKASI TETAP\n6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera. Gaya original AAA open-world game. Karakter, kendaraan, pakaian, cuaca, waktu, palet warna IDENTIK dengan video 1. Tanpa brand, logo, plat, HUD, teks, gore, musik berhak cipta.\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS: subjek (berbeda tiap beat), dunia yang bereaksi, kamera dan efek. Tidak ada beat yang hanya \"melaju\". Satu aksi besar per beat. Eskalasi ke puncak beat 5.\n\nSTRUKTUR 6 BEAT\n- 0-1 HANDOFF: tiruan persis frame terakhir video 1, lalu langsung bergerak; aksi baru mulai terlihat.\n- 1-2 PEMICU: konsekuensi dari akhir video 1 muncul.\n- 2-3 AKSI 1: reaksi subjek.\n- 3-4 AKSI 2: eskalasi, dunia ikut bereaksi.\n- 4-5 PUNCAK: momen visual terbesar.\n- 5-6 PAYOFF atau CLIFFHANGER: penutup kuat, boleh mengarah ke video 3.\n\nFORMAT OUTPUT (PERSIS)\n1. CONTINUITY ANALYSIS\n2. NEXT SCENE CONCEPT\n3. CONTINUITY LOCK\n4. CAMERA MOVEMENT (lanjutan kamera video 1)\n5. SIX-BEAT ACTION TIMELINE (0-1 ... 5-6), tiap beat: subjek + dunia + efek/kamera\n6. FINAL EXTENSION PROMPT (ENGLISH, 150-220 kata, satu paragraf, diawali \"Continue seamlessly from the last frame of the previous clip...\", memuat \"6 seconds, vertical 9:16, single continuous shot, 4K\", penanda \"first second... then... by second three... at the peak... finally\")\n7. NEGATIVE PROMPT: Low quality, blurry image, cartoon graphics, plastic textures, unrealistic lighting, distorted face, deformed hands, extra fingers, duplicated characters, floating objects, broken vehicle physics, inconsistent architecture, flickering, frame glitches, scene cut, camera reset, character change, vehicle model change, lighting jump, unnatural movements, excessive motion blur, low-resolution textures, watermark, unwanted text, subtitles, logos, brand names, license plates, HUD, minimap\n8. AUDIO (lanjutan tanpa putus, naik ke puncak detik 4-5)\n9. CATATAN GENERATOR (pakai Extend atau Image-to-Video dengan frame terakhir video 1; jika kacau, kurangi jadi 4 beat nyata, tambahkan \"slow, controlled movement\" dan \"consistent character appearance throughout\")\n\nCEK KUALITAS\nAwal = akhir video 1; Lock terisi; 6 beat berbeda; tiga lapis per beat; puncak 4-5; payoff 5-6; satu gerakan kamera; 9 bagian lengkap."}, {"id": 4, "name": "Fight 1 Pembuka", "dur": 6, "ratio": "9:16", "text": "SKILL 1 PERTARUNGAN: BUAT VIDEO 1 (VERSI PADAT)\n\nROLE\nSutradara aksi dan prompt engineer video bergaya game open-world AAA realistis. Ubah SATU JUDUL menjadi prompt pertarungan 6 detik yang padat aksi. Jangan bertanya.\n\nSPESIFIKASI TETAP\n6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera. Ultra-realistic original AAA open-world game style (jangan sebut GTA, jangan klaim gameplay resmi). Tanpa logo, brand, plat, HUD, subtitle, teks.\n\nCHARACTER LOCK (ULANGI PERSIS DI VIDEO 2 DAN 3)\nGender, usia, tinggi, postur; wajah (bentuk, kulit, mata, rambut, janggut, bekas luka); satu set pakaian tetap; gaya bertarung; lawan 1-3 petarung fiktif dengan ciri visual jelas.\n\nPENENTUAN OTOMATIS\nLokasi dari judul (default gang kota hujan); malam, hujan, neon, kabut; SATU gerakan kamera; NPC dan lingkungan hidup.\n\nSTRUKTUR 6 BEAT\n- 0-1 HOOK: sudah bergerak, serangan pertama nyaris terjadi.\n- 1-2 PEMICU: lawan menyerang duluan atau lawan kedua muncul.\n- 2-3 AKSI 1: tangkisan dan serangan balik, dampak berbobot.\n- 3-4 AKSI 2: eskalasi, luka pertama muncul.\n- 4-5 PUNCAK: pertukaran terkuat (bantingan, tendangan telak, benturan ke dinding).\n- 5-6 PAYOFF: kondisi akhir (luka, darah, napas berat), berakhir dengan pose atau gerakan yang bisa disambung.\n\nEFEK DARAH\nRealistis dan terkendali. Luka muncul bertahap per beat dan konsisten.\n\nFORMAT OUTPUT (PERSIS)\n1. VIDEO TITLE\n2. SCENE CONCEPT\n3. CHARACTER LOCK\n4. LOCATION AND ENVIRONMENT\n5. LIGHTING AND WEATHER\n6. CAMERA MOVEMENT\n7. SIX-BEAT FIGHT TIMELINE (0-1 ... 5-6), tiap beat: petarung + dampak/dunia + kamera/efek\n8. FINAL VIDEO GENERATION PROMPT (ENGLISH, 150-220 kata, satu paragraf, memuat \"6 seconds, vertical 9:16, single continuous shot, 4K\", penanda waktu, kata kerja konkret: parry, slam, sidestep, pivot, stagger, shove; hindari \"epic\")\n9. NEGATIVE PROMPT\n10. AUDIO AND SOUND DESIGN (berlapis, naik ke puncak detik 4-5)\n11. END STATE (posisi, arah, kamera, luka dan darah per bagian tubuh di detik 6)\n\nNEGATIVE PROMPT\nLow quality, blurry, cartoon, plastic skin, distorted face, deformed hands, extra fingers, duplicated characters, floating limbs, unnatural body movement, rubber-like punches, flickering, frame glitches, scene cut, camera reset, watermark, subtitles, logos, license plates, HUD, dismemberment, exposed organs, extreme gore.\n\nCEK KUALITAS\nSatu shot; 6 detik dan 9:16; 6 beat berbeda; tiga lapis per beat; puncak 4-5; payoff 5-6; Character Lock lengkap; End State terisi; patuh aturan darah.\n\nCONTOH BEAT (Duel Berdarah di Gang Hujan)\n0-1: petarung berjaket bomber hijau melangkah maju, lawan botak mengayun hook kanan, cipratan genangan, kamera low tracking.\n1-2: hook meleset, petarung menunduk, saksi di pintu menoleh, uap ventilasi bergulung.\n2-3: petarung menangkis lalu menghantam rahang lawan, kepala lawan terpelanting.\n3-4: lawan membalas siku ke pipi, bibir petarung pecah, percikan merah kecil di dinding, neon berkedip.\n4-5: petarung mencengkeram jaket lawan dan membantingnya ke dinding, bata bergetar, air menciprat.\n5-6: kamera mengorbit pelan, petarung terengah dengan darah di buku jari dan pipi, lawan merosot bersandar.\n\nATURAN DARAH & KEKERASAN\n- Semua petarung dewasa dan fiktif. Tanpa orang nyata, selebriti, brand.\n- Boleh: bibir pecah, hidung berdarah, luka gores, memar, darah di buku jari, cipratan di dinding atau lantai, noda di pakaian.\n- Tidak boleh: mutilasi, organ terlihat, close-up luka mengerikan, penyiksaan berkepanjangan, kekerasan terhadap anak atau hewan.\n- Fokus pada koreografi, dampak, dan ketegangan, bukan kekejaman.\n- Jika generator menolak kata \"blood\", pakai: crimson stains, battle-worn, bruised and cut, red splatter.\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS: (1) petarung: satu pertukaran serangan nyata berbeda dari beat sebelumnya, (2) dampak dan dunia: reaksi tubuh, cipratan air atau darah terkontrol, saksi menoleh, lampu berkedip, (3) kamera dan efek. Tidak ada beat yang hanya \"saling tatap\". Satu pertukaran besar per beat. Eskalasi ke puncak beat 5. Semua beat tersambung dalam satu gerakan."}, {"id": 5, "name": "Fight 2 Lanjutan", "dur": 6, "ratio": "9:16", "text": "SKILL 2 PERTARUNGAN: PERPANJANG KE VIDEO 2 (VERSI PADAT)\n\nROLE\nSutradara aksi yang melanjutkan VIDEO 1 menjadi VIDEO 2, dimulai tepat dari frame terakhir video 1, padat aksi tanpa jeda.\n\nINPUT\n1. Video 1 (atau frame terakhir / prompt video 1 beserta CHARACTER LOCK dan END STATE).\n2. Opsional: ide lanjutan. Jika kosong, tentukan sendiri. Jangan bertanya balik.\n\nLANGKAH WAJIB\n1. Analisis detik 5-6 video 1: posisi, arah, kamera, lokasi, cuaca, luka dan darah.\n2. Salin CHARACTER LOCK tanpa perubahan.\n3. Luka dan darah video 1 HARUS tetap ada dan boleh bertambah; tidak hilang atau berpindah.\n4. Mulai tanpa jeda dan tanpa reset kamera. Aksi baru = konsekuensi akhir video 1 (lawan baru, senjata diambil, pindah area, pembalikan keadaan).\n\nSPESIFIKASI TETAP\n6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera, gaya dan cahaya sama dengan video 1.\n\nSTRUKTUR 6 BEAT\n- 0-1 HANDOFF: tiruan persis frame terakhir video 1 (posisi, arah, kamera, luka sama), lalu langsung bergerak.\n- 1-2 PEMICU: konsekuensi muncul (lawan baru, ancaman, senjata, lokasi baru).\n- 2-3 AKSI 1: karakter mulai terdesak atau menyerang balik.\n- 3-4 AKSI 2: eskalasi, lawan lebih kuat, luka baru.\n- 4-5 PUNCAK: pertukaran paling dramatis video 2.\n- 5-6 TITIK BALIK: cliffhanger terkontrol menuju video 3.\n\nFORMAT OUTPUT (PERSIS)\n1. CONTINUITY ANALYSIS\n2. CHARACTER LOCK (disalin persis)\n3. INJURY & BLOOD CONTINUITY (luka video 1 + tambahan, per bagian tubuh)\n4. NEXT SCENE CONCEPT\n5. CAMERA MOVEMENT (lanjutan kamera video 1)\n6. SIX-BEAT FIGHT TIMELINE (0-1 ... 5-6), tiap beat: petarung + dampak/dunia + kamera/efek\n7. FINAL EXTENSION PROMPT (ENGLISH, 150-220 kata, diawali \"Continue seamlessly from the last frame of the previous clip...\", memuat \"6 seconds, vertical 9:16, single continuous shot, 4K\", penanda waktu)\n8. NEGATIVE PROMPT: Low quality, blurry, cartoon, plastic skin, distorted face, deformed hands, extra fingers, duplicated characters, floating limbs, unnatural body movement, rubber-like punches, flickering, frame glitches, scene cut, camera reset, character change, face change, outfit change, injury disappearing, lighting jump, watermark, subtitles, logos, license plates, HUD, dismemberment, exposed organs, extreme gore\n9. AUDIO (lanjutan tanpa putus, naik ke puncak detik 4-5)\n10. END STATE (untuk video 3)\n\nCEK KUALITAS\nAwal = akhir video 1; Character Lock identik; luka tidak hilang; 6 beat berbeda; tiga lapis per beat; puncak 4-5; cliffhanger 5-6; satu gerakan kamera.\n\nATURAN DARAH & KEKERASAN\n- Semua petarung dewasa dan fiktif. Tanpa orang nyata, selebriti, brand.\n- Boleh: bibir pecah, hidung berdarah, luka gores, memar, darah di buku jari, cipratan di dinding atau lantai, noda di pakaian.\n- Tidak boleh: mutilasi, organ terlihat, close-up luka mengerikan, penyiksaan berkepanjangan, kekerasan terhadap anak atau hewan.\n- Fokus pada koreografi, dampak, dan ketegangan, bukan kekejaman.\n- Jika generator menolak kata \"blood\", pakai: crimson stains, battle-worn, bruised and cut, red splatter.\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS: (1) petarung: satu pertukaran serangan nyata berbeda dari beat sebelumnya, (2) dampak dan dunia: reaksi tubuh, cipratan air atau darah terkontrol, saksi menoleh, lampu berkedip, (3) kamera dan efek. Tidak ada beat yang hanya \"saling tatap\". Satu pertukaran besar per beat. Eskalasi ke puncak beat 5. Semua beat tersambung dalam satu gerakan."}, {"id": 6, "name": "Fight 3 Klimaks", "dur": 6, "ratio": "9:16", "text": "SKILL 3 PERTARUNGAN: PERPANJANG KE VIDEO 3 (KLIMAKS, VERSI PADAT)\n\nROLE\nSutradara aksi yang melanjutkan VIDEO 2 menjadi VIDEO 3, dimulai tepat dari frame terakhir video 2. Video 3 adalah klimaks dan penutup.\n\nINPUT\n1. Video 2 (atau frame terakhir / prompt video 2).\n2. CHARACTER LOCK dan INJURY & BLOOD CONTINUITY dari video 1 dan 2.\n3. Opsional: ide klimaks. Jika kosong, tentukan sendiri.\n\nLANGKAH WAJIB\n1. Analisis detik 5-6 video 2 (posisi, arah, kamera, cuaca, luka, darah).\n2. Karakter 100% identik dengan video 1 dan 2. Luka dan darah terakumulasi konsisten dan makin melelahkan, bukan berubah acak.\n3. Mulai tanpa jeda dari frame terakhir video 2.\n\nSPESIFIKASI TETAP\n6 detik, vertikal 9:16, 4K, satu shot kontinu, satu gerakan kamera, gaya dan cahaya konsisten.\n\nSTRUKTUR 6 BEAT\n- 0-1 HANDOFF: tiruan persis frame terakhir video 2, ketegangan memuncak, langsung bergerak.\n- 1-2 PEMICU: lawan menyerang dengan seluruh tenaga.\n- 2-3 AKSI 1: karakter bertahan dan mengambil celah, kelelahan terlihat.\n- 3-4 AKSI 2: kombinasi serangan penentu, dunia ikut bereaksi.\n- 4-5 PUNCAK: serangan paling intens seluruh seri.\n- 5-6 PENUTUP: lawan tumbang tanpa gore, karakter berdiri terengah, kamera menjauh atau naik pelan. Akhir tuntas.\n\nFORMAT OUTPUT (PERSIS)\n1. CONTINUITY ANALYSIS\n2. CHARACTER LOCK (disalin persis)\n3. INJURY & BLOOD CONTINUITY (akumulasi video 1-2 + tambahan)\n4. CLIMAX SCENE CONCEPT\n5. CAMERA MOVEMENT\n6. SIX-BEAT FIGHT TIMELINE (0-1 ... 5-6), tiap beat: petarung + dampak/dunia + kamera/efek\n7. FINAL EXTENSION PROMPT (ENGLISH, 150-220 kata, diawali \"Continue seamlessly from the last frame of the previous clip...\", memuat \"6 seconds, vertical 9:16, single continuous shot, 4K\", penanda waktu)\n8. NEGATIVE PROMPT (sama seperti skill 5)\n9. AUDIO (lanjutan, naik ke puncak detik 4-5, berakhir dengan musik penutup orisinal dan napas berat)\n10. CATATAN PENYATUAN (sambung video 1+2+3 jadi 18 detik: trim frame handoff duplikat, crossfade 2-3 frame, color grade seragam, satu musik penyatu)\n\nCEK KUALITAS\nAwal = akhir video 2; karakter dan luka konsisten; 6 beat berbeda; tiga lapis per beat; puncak 4-5; penutup tuntas 5-6; tanpa gore ekstrem.\n\nATURAN DARAH & KEKERASAN\n- Semua petarung dewasa dan fiktif. Tanpa orang nyata, selebriti, brand.\n- Boleh: bibir pecah, hidung berdarah, luka gores, memar, darah di buku jari, cipratan di dinding atau lantai, noda di pakaian.\n- Tidak boleh: mutilasi, organ terlihat, close-up luka mengerikan, penyiksaan berkepanjangan, kekerasan terhadap anak atau hewan.\n- Fokus pada koreografi, dampak, dan ketegangan, bukan kekejaman.\n- Jika generator menolak kata \"blood\", pakai: crimson stains, battle-worn, bruised and cut, red splatter.\n\nKEPADATAN AKSI\nTiap beat memuat TIGA LAPIS: (1) petarung: satu pertukaran serangan nyata berbeda dari beat sebelumnya, (2) dampak dan dunia: reaksi tubuh, cipratan air atau darah terkontrol, saksi menoleh, lampu berkedip, (3) kamera dan efek. Tidak ada beat yang hanya \"saling tatap\". Satu pertukaran besar per beat. Eskalasi ke puncak beat 5. Semua beat tersambung dalam satu gerakan."}, {"id": 7, "name": "Hollywood Lengkap", "dur": 5, "ratio": "16:9", "text": "HOLLYWOOD MASTER FILM GENERATOR: 5 SECOND SCENE SYSTEM (PRO)\n\nROLE\nKamu sutradara, penulis skenario, sinematografer, dan prompt engineer film Hollywood. Ubah ide pengguna menjadi film utuh yang tersusun dari klip video 5 detik yang saling tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene benar-benar tidak ada (default 10 scene).\n\nATURAN DURASI (TIDAK BOLEH DILANGGAR)\n- Setiap scene TEPAT 5 DETIK, satu shot kontinu, tanpa potongan di dalam scene.\n- Total durasi = jumlah scene x 5 detik.\n  10 scene = 50 dtk | 30 scene = 150 dtk | 100 scene = 500 dtk | 240 scene = 1.200 dtk.\n- Rasio default 16:9 (sinematik). Jika pengguna meminta vertikal, gunakan 9:16 konsisten di semua scene.\n- Resolusi target 4K atau tertinggi yang didukung generator.\n\nTAHAP 0: STORY BIBLE (SEKALI DI AWAL)\nSebelum scene pertama, buat:\n1. LOGLINE (satu kalimat) dan GENRE + TONE\n2. STRUKTUR 3 AKT dengan pembagian scene:\n   Akt 1 Setup (25%), Akt 2 Konflik dan eskalasi (50%), Akt 3 Klimaks dan resolusi (25%)\n3. CHARACTER LOCK untuk tiap tokoh utama: gender, usia perkiraan, tinggi dan postur, wajah (bentuk, kulit, mata, rambut, ciri khas), pakaian tetap (atasan, bawahan, sepatu, aksesori), sifat dan cara bergerak. Deskripsi ini disalin PERSIS ke setiap prompt scene.\n4. LOCATION LOCK: daftar lokasi, waktu, cuaca, dan palet warna per lokasi\n5. VISUAL STYLE: look sinematik (lensa, grading warna, tekstur), referensi gaya umum tanpa menyebut film atau brand nyata\n6. CONTINUITY LEDGER awal: kondisi karakter, luka, properti, kendaraan\n\nFORMAT SETIAP SCENE\nSCENE XX | 00:00-00:05 | (waktu film kumulatif, mis. 00:45-00:50) | Akt X\n\n1. Story / kejadian (apa yang terjadi dan kenapa penting bagi cerita)\n2. Lokasi (sesuai Location Lock)\n3. Karakter (Character Lock singkat + siapa yang tampil)\n4. Ekspresi (emosi dan perubahan ekspresi selama 5 detik)\n5. Gerakan tubuh (per beat, lihat timeline)\n6. Gerakan kamera (SATU gerakan utama: tracking, dolly in/out, orbit, crane up, handheld halus, push-in; sebut jenis shot dan lensa, mis. 35mm medium tracking)\n7. Pencahayaan (arah, warna, kontras, sumber cahaya)\n8. Efek visual (hujan, asap, percikan, ledakan terkontrol, partikel, depth of field, motion blur)\n9. Prompt gambar (English): frame pembuka scene, untuk Image-to-Video\n10. Prompt video (English): 80-150 kata, satu paragraf, memuat 5 micro-beat\n11. Dialog (singkat, 0-2 kalimat, tulis waktu muncul; atau \"tanpa dialog\")\n12. Voice-over (opsional, atau \"tanpa\")\n13. Musik dan sound effects (layer: ambience, foley, SFX, musik orisinal, dengan intensitas)\n14. Transisi ke scene berikutnya (posisi, arah pandang, gerakan, dan kamera di detik 5 yang akan jadi awal scene berikutnya)\n15. Continuity check (satu baris: apa yang berubah di Continuity Ledger)\n\nTIMELINE MICRO-BEAT (WAJIB, 5 BEAT PER SCENE)\n- Detik 0-1 (Beat 1): gerakan pembuka, lanjutan mulus dari frame terakhir scene sebelumnya.\n- Detik 1-2 (Beat 2): aksi atau informasi baru muncul.\n- Detik 2-3 (Beat 3): aksi utama, puncak gerakan atau emosi scene.\n- Detik 3-4 (Beat 4): reaksi, dampak, atau perubahan situasi.\n- Detik 4-5 (Beat 5): gerakan penutup dan persiapan scene berikutnya (arah gerak, pandangan, kamera mengarah ke kelanjutan).\nSetiap beat berisi gerakan nyata berbeda. Semua beat berada dalam SATU shot kontinu, bukan lima potongan.\n\nKUALITAS SINEMATIK\n- Variasikan jenis shot antar scene (establishing, medium, close-up, over-the-shoulder, low-angle, aerial) agar film punya ritme, tetapi di dalam satu scene hanya satu gerakan kamera.\n- Jaga screen direction (arah gerak kiri/kanan) dan axis 180 derajat antar scene.\n- Atur pacing: scene tenang dan scene intens bergantian. Naikkan intensitas bertahap menuju klimaks.\n- Setiap scene harus memajukan cerita atau mengungkap karakter.\n- Warna dan cahaya konsisten per lokasi, perubahan hanya jika cerita menuntut (matahari terbit, hujan mulai).\n\nCONTINUITY (WAJIB)\nScene berikutnya melanjutkan posisi karakter, arah pandang, gerakan, kondisi lingkungan, cuaca, properti, luka, dan posisi kamera dari detik 5 scene sebelumnya. Perbarui Continuity Ledger setiap scene.\n\nDILARANG\n- Scene lebih atau kurang dari 5 detik.\n- Mengulang adegan tanpa alasan cerita.\n- Mengubah wajah, rambut, atau tubuh karakter.\n- Mengubah pakaian tanpa alasan cerita (dan jelaskan alasannya).\n- Gerakan, posisi, atau arah yang tidak tersambung.\n- Melompati alur cerita atau lokasi tanpa transisi.\n- Menggunakan orang nyata, selebriti, logo, merek, plat nomor asli, atau musik berhak cipta.\n- Teks layar, subtitle, HUD, watermark.\n- Konten gore ekstrem, kekerasan terhadap anak atau hewan, konten seksual eksplisit. Aksi dan kekerasan fiktif boleh tampil terkontrol, tanpa kekejaman berlebihan.\n\nNEGATIVE PROMPT (TEMPEL DI SETIAP SCENE)\nLow quality, blurry, cartoon, plastic skin, distorted face, face change, outfit change, deformed hands, extra fingers, duplicated characters, floating objects, unnatural movement, flickering, frame glitches, scene cut, camera reset, lighting jump, watermark, subtitles, text, logos, license plates.\n\nMODE KELUARAN\n- Tulis 10 scene per jawaban. Akhiri dengan: \"Total sejauh ini: X scene = Y detik. Ketik 'lanjut' untuk scene berikutnya.\"\n- Jika pengguna menulis nomor scene tertentu, tulis ulang hanya scene itu sambil menjaga continuity.\n- Setelah scene terakhir, tampilkan RINGKASAN FILM: total scene, total durasi, daftar lokasi, dan catatan penyuntingan (urutan file, transisi, musik penyatu).\n\nCHECKLIST SEBELUM MENJAWAB\n[ ] Tepat 5 detik per scene [ ] 5 micro-beat terisi [ ] Character dan Location Lock disalin persis [ ] Awal scene = akhir scene sebelumnya [ ] Satu gerakan kamera [ ] Cerita maju [ ] Tidak ada brand, teks, atau musik berhak cipta [ ] Negative prompt disertakan\n\nCONTOH SATU SCENE\nSCENE 07 | 00:00-00:05 | 00:30-00:35 | Akt 2\n1. Story: Rena menyadari mobil sedan hitam mengikutinya dan memutuskan kabur lewat pasar malam.\n2. Lokasi: Jalan pasar malam tropis fiktif, hujan tipis.\n3. Karakter: Rena (wanita dewasa fiktif, rambut hitam sebahu, bekas luka kecil di dagu kiri, jaket hujan kuning, jeans hitam, sneakers putih).\n4. Ekspresi: Waspada, lalu panik, lalu tekad.\n5. Gerakan tubuh: Beat 1 berjalan cepat sambil menoleh; Beat 2 melihat sedan di kaca toko; Beat 3 berbalik dan mulai berlari; Beat 4 menyelinap di antara pembeli; Beat 5 melompati kotak buah dan masuk lorong.\n6. Gerakan kamera: Medium tracking shot 35mm dari belakang, mengikuti Rena, mendekat perlahan.\n7. Pencahayaan: Lampu bohlam kuning hangat dari kios, kontras dengan lampu mobil biru dingin di belakang.\n8. Efek visual: Pantulan di genangan, uap dari kios makanan, tetesan hujan di lensa.\n9. Prompt gambar: \"Medium shot from behind of a fictional adult woman with shoulder-length black hair and a small scar on her left chin, yellow rain jacket, black jeans, white sneakers, walking quickly through a rainy tropical night market, warm bulb lights, cinematic, photorealistic.\"\n10. Prompt video: \"5 seconds, single continuous shot, 16:9, 4K. Continue from the previous clip. The same woman in the yellow rain jacket walks quickly through a rainy night market and glances back, catches the reflection of a black sedan in a shop window, turns and breaks into a run, weaves between shoppers carrying umbrellas, then leaps over a stack of fruit crates into a narrow alley. Medium tracking camera at 35mm follows from behind and slowly pushes in. Warm tungsten stall lights against cold blue headlights, steam rising, raindrops on the lens, reflections in puddles, natural motion blur, photorealistic cinematic look.\"\n11. Dialog: Rena (napas tersengal, detik 1-2): \"Mereka sudah di sini.\"\n12. Voice-over: Tanpa.\n13. Musik dan SFX: Hujan, riuh pasar, langkah basah, deru mesin mendekat, musik ketegangan orisinal naik perlahan.\n14. Transisi: Rena masuk lorong sempit, menoleh ke kanan, kamera di belakang bahunya, siap scene 08 di lorong.\n15. Continuity: Jaket mulai basah, napas Rena berat, sedan kini 20 meter di belakang.\n\nTIPS PRODUKSI\n- Simpan Story Bible di dokumen terpisah dan tempel ulang di awal setiap sesi baru supaya karakter tidak berubah.\n- Pakai frame terakhir tiap klip sebagai gambar awal scene berikutnya (Image-to-Video).\n- Untuk film panjang (100+ scene), kerjakan per akt dan simpan Continuity Ledger terakhir sebagai titik lanjut.\n- Jika gerakan di dalam 5 detik terlalu padat dan generator kacau, kurangi menjadi 3-4 aksi nyata dan tetap sebut 5 beat dengan beat yang lebih ringan.\n- Gabungkan semua klip di editor video, tambahkan musik penyatu dan color grading seragam."}, {"id": 8, "name": "Romantis Dewasa", "dur": 5, "ratio": "16:9", "text": "ROMANTIC ADULT DRAMA GENERATOR 18+ (SENSUAL, NON-EKSPLISIT): 5 SECOND SCENE SYSTEM\n\nROLE\nKamu sutradara film drama romantis dewasa yang sensual, elegan, dan sinematik. Ubah ide pengguna menjadi rangkaian klip video 5 detik yang tersambung. Tentukan sendiri detail yang tidak disebut. Jangan bertanya, kecuali jumlah scene tidak ada (default 10).\n\n1. BATAS KONTEN (TIDAK BOLEH DILANGGAR)\n- Semua karakter fiktif dan dewasa, usia 25 tahun ke atas, usia ditulis di Character Lock. Tidak ada karakter yang tampak muda atau ambigu usianya.\n- Tanpa orang nyata, selebriti, merek, logo, plat nomor, teks layar, subtitle, watermark.\n- Semua interaksi saling setuju dan setara. Tanpa paksaan, kekerasan, atau penyalahgunaan kuasa.\n- Tanpa ketelanjangan, tanpa adegan seks, tanpa pose atau gerakan seksual, tanpa close-up bagian tubuh intim, tanpa suara seksual eksplisit.\n- Pakaian tetap menutup layak di seluruh scene.\n- Momen yang lebih intim dari ciuman dan sentuhan hanya DIIMPLIKASIKAN lewat transisi: kamera berpaling ke jendela atau hujan, lampu meredup, pintu menutup, fade to black, lalu scene berikutnya dibuka keesokan paginya.\n\n2. SPESIFIKASI\n- Tiap scene TEPAT 5 DETIK, satu shot kontinu. Total durasi = jumlah scene x 5 detik.\n- Rasio 16:9 (atau 9:16 bila diminta, konsisten). 4K atau tertinggi yang didukung.\n- Gaya: photorealistic cinematic romantic drama, kulit natural, kain realistis, depth of field dangkal, grading hangat.\n\n3. STORY BIBLE (SEKALI DI AWAL)\n- Logline dan tone.\n- Struktur: Pertemuan, Ketertarikan, Ketegangan, Puncak romantis, Resolusi emosional.\n- CHARACTER LOCK: usia perkiraan (25+), wajah, rambut, tubuh, pakaian tetap, gestur khas. Salin persis ke setiap scene.\n- LOCATION LOCK: tempat, waktu, cuaca, palet warna.\n- CONTINUITY LEDGER: pakaian, properti, posisi, cuaca.\n\n4. FORMAT SETIAP SCENE\nSCENE XX | 00:00-00:05 | waktu film kumulatif | Tahap romansa\n1 Story | 2 Lokasi | 3 Karakter | 4 Ekspresi | 5 Gerakan tubuh (per beat) | 6 Gerakan kamera (satu gerakan, sebut lensa) | 7 Pencahayaan | 8 Efek visual | 9 Prompt gambar (English) | 10 Prompt video (English, 80-150 kata, satu paragraf, memuat 5 beat) | 11 Dialog (bisikan, singkat) | 12 Voice-over | 13 Musik dan SFX | 14 Transisi ke scene berikutnya | 15 Continuity check\n\n5. TIMELINE 5 MICRO-BEAT\n- 0-1 dtk: gerakan pembuka, lanjutan scene sebelumnya.\n- 1-2 dtk: tatapan atau isyarat baru.\n- 2-3 dtk: aksi utama (mendekat, sentuhan, ciuman).\n- 3-4 dtk: reaksi emosional (napas, senyum, mata menutup).\n- 4-5 dtk: penutup dan persiapan scene berikutnya.\n\n6. MODUL INTIM (UNTUK TAHAP PUNCAK ROMANTIS)\nBOLEH DITAMPILKAN:\n- Ciuman lembut, ciuman dalam, ciuman penuh gairah, bibir bertaut lama, jeda napas lalu mencium lagi, ciuman di bibir, rahang, leher, dan bahu.\n- Sentuhan sensual DI ATAS PAKAIAN: tangan menelusuri punggung, pinggang, bahu, lengan, tengkuk, paha luar, serta dada dan perut (telapak tangan rata, bukan meremas); jari menyelip di rambut; tangan memegang wajah; menarik pinggang mendekat; tubuh saling menempel; bersandar ke dinding atau pagar sambil berciuman.\n- Bahasa tubuh: napas memburu, mata menutup, jemari mencengkeram kemeja atau gaun, kepala miring, desah tertahan ringan, senyum di sela ciuman, dahi bertemu setelah ciuman.\n- Detail pakaian: kerah dilonggarkan, dasi ditarik, jas dilepas dan jatuh ke kursi.\nTIDAK BOLEH: meraba atau meremas payudara, bokong, selangkangan, bagian dalam paha, atau area genital; pakaian dilepas hingga terbuka; pakaian dalam; pose atau gerakan seksual; adegan tempat tidur yang seksual.\nPOLA 3 SCENE PUNCAK:\n- Scene A Pendekatan: tatapan, napas dekat, tangan di wajah, hampir mencium.\n- Scene B Ciuman: ciuman lembut berubah dalam, tangan menarik pinggang, punggung bersandar ke dinding.\n- Scene C Gairah: ciuman penuh gairah, tangan menelusuri punggung dan rambut, napas berat, lalu kamera berpaling ke jendela berembun, lampu meredup, fade to black.\n\n7. KAMERA & VISUAL\nSatu gerakan kamera per scene: slow push-in, orbit pelan, rack focus, handheld halus, over-the-shoulder, close-up wajah dan tangan. Lensa 50mm atau 85mm. Cahaya: candlelight, golden hour, neon lembut, bokeh kota. Efek: tetesan hujan di kaca, uap, kain tertiup angin, kulit berkilau natural.\n\n8. KOSAKATA PROMPT\nlingering gaze, soft smile, fingertips brushing, slow embrace, passionate kiss, hand sliding along her back over silk, fingers tangled in hair, bodies pressed close, brief pause for breath, shallow depth of field, warm candlelight, rain on window, silk fabric moving.\nHindari kata: nude, naked, topless, lingerie, sex, explicit, erotic act, genital, fetish, young-looking, schoolgirl, forced.\n\n9. NEGATIVE PROMPT (TEMPEL DI SETIAP SCENE)\nNudity, undressed, lingerie, explicit content, sexual act, groping intimate areas, genitals, minors, young-looking characters, non-consensual, deformed hands, extra fingers, extra limbs, distorted face, merged faces while kissing, face change, outfit change, duplicated characters, plastic skin, flickering, frame glitches, scene cut, camera reset, watermark, subtitles, text, logos.\n\n10. AUDIO\nNapas pelan, hujan, langkah, detak jam, piano atau string atau jazz lembut orisinal. Tanpa musik berhak cipta, tanpa suara seksual eksplisit.\n\n11. CONTINUITY\nAwal scene berikutnya = akhir scene sebelumnya: posisi, arah pandang, pakaian, cuaca, posisi kamera. Perbarui Continuity Ledger tiap scene.\n\n12. MODE KELUARAN\n10 scene per jawaban, lalu: \"Total sejauh ini: X scene = Y detik. Ketik 'lanjut'.\" Setelah scene terakhir tampilkan RINGKASAN FILM dan catatan penyuntingan.\n\n13. CHECKLIST\n[ ] Karakter fiktif 25+ [ ] Tanpa ketelanjangan atau adegan seks [ ] Sentuhan hanya di atas pakaian dan di area yang diizinkan [ ] Momen lebih intim hanya diimplikasikan [ ] 5 detik dan 5 beat [ ] Character Lock konsisten [ ] Negative prompt disertakan\n\nCONTOH PROMPT VIDEO SCENE CIUMAN\n\"5 seconds, single continuous shot, 16:9, 4K. The same two adults on a rainy hotel balcony kiss passionately, his hand sliding slowly along her back over her emerald silk dress, her fingers tangled in his hair, bodies pressed close, a brief pause for breath before they kiss again. Slow orbit camera, 85mm, shallow depth of field, warm lamp light against blue city bokeh, raindrops on glass, photorealistic romantic drama.\"\n\nTIPS\n- Jika generator memblokir adegan, kurangi ke pelukan dan ciuman, dan hindari kata bernuansa seksual.\n- Gunakan sudut tiga perempat atau profil samping agar wajah tidak menyatu saat berciuman.\n- Selalu tulis usia dewasa di prompt (adult man around 35)."}];
+const SK = {}; SKILLS.forEach(s => SK[s.id] = s);
+const NEG = "Low quality, blurry, cartoon, plastic skin, distorted face, face change, outfit change, deformed hands, extra fingers, duplicated characters, floating objects, unnatural movement, flickering, frame glitches, scene cut, camera reset, lighting jump, watermark, subtitles, text, logos, license plates.";
+const KEY = 'studio-film-5dtk-v1';
+const GENRES = ['Aksi Thriller','Drama','Romantis','Horor','Petualangan','Fiksi Ilmiah','Kriminal','Fantasi'];
+const BATCH = 10;
+
+let S = { title:'', idea:'', genre:'Aksi Thriller', total:10, ratio:'16:9', bible:'', adjust:true, tab:0, scenes:[] };
+try { const r = localStorage.getItem(KEY); if (r) S = Object.assign(S, JSON.parse(r)); } catch(e) {}
+let openPrev = null, confirmClear = false;
+
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('on'),2200); }
+function fmt(sec){ const m=Math.floor(sec/60), s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function sorted(){ return S.scenes.slice().sort((a,b)=>a.n-b.n); }
+function byN(n){ return S.scenes.find(s=>s.n===n); }
+
+function field(text, num){
+  const re = new RegExp('(?:^|\\n)[ \\t>*#-]*'+num+'\\.[ \\t]*\\**[^:\\n]*:\\**[ \\t]*([\\s\\S]*?)(?=\\n[ \\t>*#-]*'+(num+1)+'\\.[ \\t]|\\n[ \\t#*]*SCENE\\s+\\d+|$)','i');
+  const m = text.match(re);
+  return m ? m[1].trim() : '';
+}
+function storyOf(sc){
+  const s = field(sc.text,1);
+  if (s) return s;
+  return sc.text.split('\n').slice(1).join(' ').replace(/\s+/g,' ').trim().slice(0,200);
+}
+function videoPrompt(sc){ return field(sc.text,10).replace(/^["“]|["”]$/g,'').trim(); }
+
+const RX = {
+  rom: /roman|cium|kiss|pelukan|memeluk|kekasih|cinta|bisik|sensual|rindu|candlelight|embrace/,
+  fight: /berkelahi|pukul|tinju|duel|bertarung|pertarungan|tendang|hantam|baku hantam|bantingan|banting|fight|punch|kick|brawl|adu jotos|serang/,
+  veh: /mobil|motor|kejar|balap|supercar|helikopter|speedboat|truk|sedan|drift|tabrak|chase|pickup|kendaraan|menembus jalan/
+};
+function recommend(){
+  const out = {}; let fr = 0, pv = false;
+  for (const sc of sorted()){
+    const t = sc.text.toLowerCase();
+    let id = 7, why = 'Adegan cerita atau drama: Skill 7 memberi 15 poin detail lengkap.';
+    if (RX.rom.test(t)) { id = 8; why = 'Ada unsur romantis dewasa: Skill 8 (non-eksplisit).'; fr = 0; pv = false; }
+    else if (RX.fight.test(t)) {
+      const k = fr % 3; id = [4,5,6][k];
+      why = ['Awal pertarungan: Skill 4 membuka duel.','Pertarungan berlanjut: Skill 5 menyambung luka dan posisi.','Klimaks pertarungan: Skill 6 menutup duel.'][k];
+      fr++; pv = false;
+    }
+    else if (RX.veh.test(t)) {
+      id = pv ? 3 : 2;
+      why = pv ? 'Aksi kendaraan berlanjut: Skill 3 menyambung dari frame terakhir.' : 'Aksi kendaraan atau kejar-kejaran: Skill 2 gaya open-world.';
+      pv = true; fr = 0;
+    }
+    else { fr = 0; pv = false; }
+    out[sc.n] = { id, why };
+  }
+  return out;
+}
+function effId(sc, rec){ return sc.over != null ? sc.over : (rec[sc.n] ? rec[sc.n].id : 7); }
+
+function dataBlock(){
+  return 'JUDUL FILM: ' + (S.title || '(belum diisi)') +
+    '\nRASIO FILM: ' + S.ratio + ' | JUMLAH SCENE: ' + S.total + ' | DURASI TOTAL: ' + (S.total*5) + ' detik' +
+    '\nGENRE: ' + S.genre +
+    '\n\nSTORY BIBLE (Character Lock, Location Lock, Visual Style, Continuity Ledger):\n' + (S.bible.trim() || '(belum ditempel, buat dulu lewat Skill 1)');
+}
+const LINE = '\n============================================================\n';
+
+function cmdTitle(){
+  return 'PAKAI SKILL 1: ' + SK[1].name + '\n\n' + SK[1].text + LINE +
+    'TUGAS SEKARANG (TAHAP 0)' + LINE +
+    'Jangan tulis scene dulu. Lakukan dua hal:\n1) Beri 3 pilihan judul film beserta logline satu kalimat, lalu tunjuk satu judul terbaik.\n2) Untuk judul terbaik, tulis STORY BIBLE lengkap (logline, genre + tone, struktur 3 akt dengan pembagian scene, Character Lock, Location Lock, Visual Style, Continuity Ledger awal).\n\n' +
+    'Jumlah scene: ' + S.total + ' (total ' + (S.total*5) + ' detik)\nRasio: ' + S.ratio + '\nGenre: ' + S.genre +
+    '\n\nIDE FILM:\n' + (S.idea.trim() || '(tentukan sendiri)');
+}
+function cmdBatch(b){ return cmdRange((b-1)*BATCH + 1, Math.min(b*BATCH, S.total)); }
+function cmdRange(a, z){
+  let c = 'PAKAI SKILL 1: ' + SK[1].name + '\n\n' + SK[1].text + LINE + 'DATA FILM' + LINE + dataBlock() + LINE +
+    'TUGAS SEKARANG' + LINE + 'Tulis SCENE ' + pad(a) + ' sampai SCENE ' + pad(z) + ' sesuai format 15 poin. Salin Character Lock dan Location Lock persis.';
+  const prev = byN(a-1);
+  if (prev) c += '\n\nLanjutkan dari akhir scene ' + pad(a-1) + '.\nTransisi: ' + (field(prev.text,14) || '(lihat scene sebelumnya)') + '\nContinuity: ' + (field(prev.text,15) || '-');
+  return c;
+}
+function sceneCommand(sc, rec){
+  const id = effId(sc, rec), sk = SK[id], prev = byN(sc.n-1);
+  const s0 = (sc.n-1)*5;
+  let c = 'PAKAI SKILL ' + id + ': ' + sk.name + '\n\n' + sk.text + LINE + 'DATA FILM' + LINE + dataBlock() + LINE +
+    'SCENE YANG DIPROSES: SCENE ' + pad(sc.n) + ' | ' + fmt(s0) + '-' + fmt(s0+5) + LINE + sc.text.trim();
+  if (prev) {
+    c += '\n\nSCENE SEBELUMNYA (SCENE ' + pad(prev.n) + ') untuk kelanjutan:\nTransisi: ' + (field(prev.text,14) || prev.text.slice(-300)) + '\nContinuity: ' + (field(prev.text,15) || '-');
+  } else c += '\n\nIni scene pertama film, mulai tanpa video sebelumnya.';
+  if ([3,5,6].includes(id)) c += '\nVideo sebelumnya adalah klip scene ' + pad(sc.n-1) + '. Mulai dari frame terakhirnya.';
+  c += LINE + 'TUGAS SEKARANG' + LINE + 'Terapkan skill di atas pada scene ini dan keluarkan sesuai FORMAT OUTPUT skill. Pertahankan Character Lock dan Location Lock dari Story Bible.';
+  if (sk.dur !== 5 && S.adjust) c += '\nPENYESUAIAN: skill ini bawaannya ' + sk.dur + ' detik dan ' + sk.ratio + ', tetapi scene film ini TEPAT 5 detik, rasio ' + S.ratio + '. Ubah struktur menjadi 5 beat (0-1 sampai 4-5), tulis "5 seconds, ' + S.ratio + ', single continuous shot, 4K" pada prompt final.';
+  return c;
+}
+
+/* ---------- Generate langsung dengan Claude (capability sample) ---------- */
+let sample = null;
+let gen = { busy:false, label:'', live:'', err:'', ctl:null };
+const FMT_TITLE = '\n\nFORMAT JAWABAN (ikuti persis, tanpa kalimat pembuka):\nPILIHAN JUDUL:\n1. <judul> - <logline satu kalimat>\n2. <judul> - <logline satu kalimat>\n3. <judul> - <logline satu kalimat>\nJUDUL TERPILIH: <satu judul saja>\nSTORY BIBLE:\n<isi lengkap Tahap 0 untuk judul terpilih>';
+const FMT_SCENE = '\n\nFORMAT JAWABAN: mulai langsung dengan baris "SCENE XX | 00:00-00:05 | waktu kumulatif | Akt X" untuk tiap scene, tanpa pengantar, tanpa penutup, tanpa kalimat "Total sejauh ini". Pakai 15 poin bernomor "1. Story: ...", "2. Lokasi: ...", sampai "15. Continuity: ...". Poin 10 (Prompt video, English) satu paragraf.';
+const ERR = {
+  not_granted:'Izin memakai Claude ditolak. Pakai tombol Salin lalu tempel manual.',
+  sampling_disabled:'Claude tidak tersedia untuk akun ini. Pakai tombol Salin.',
+  rate_limited:'Terlalu banyak permintaan atau batas pemakaian tercapai. Tunggu sebentar lalu tekan lagi.',
+  session_expired:'Sesi habis. Masuk lagi ke Claude lalu coba lagi.',
+  refused:'Claude menolak isi permintaan ini. Ubah ide atau scene lalu coba lagi.',
+  prompt_too_large:'Data terlalu panjang. Persingkat Story Bible.',
+  invalid_json:'Hasil tidak terbaca. Coba lagi.',
+  empty_completion:'Claude tidak menghasilkan teks. Coba lagi.',
+  format:'Hasil tidak bisa dipisahkan menjadi scene. Coba tekan lagi.'
+};
+function errCopy(e){ return (e && ERR[e.code]) || 'Koneksi ke Claude terputus. Hasil yang sudah selesai tetap tersimpan, tekan lagi untuk melanjutkan.'; }
+
+function paintStatus(){
+  const el = $('#status'); if (!el) return;
+  if (!gen.busy && !gen.err) { el.hidden = true; el.classList.remove('err'); return; }
+  el.hidden = false; el.classList.toggle('err', !!gen.err && !gen.busy);
+  if (gen.busy) {
+    const tail = gen.live ? gen.live.slice(-160).replace(/\s+/g,' ') : 'Menunggu Claude...';
+    el.innerHTML = '<div class="top"><strong>'+esc(gen.label)+'</strong><button class="btn small" data-act="stop">Berhenti</button></div><p class="live">'+esc(tail)+'</p>';
+  } else {
+    el.innerHTML = '<div class="top"><strong>'+esc(gen.err)+'</strong><button class="btn small" data-act="dismiss">Tutup</button></div>';
+  }
+}
+async function ask(prompt){
+  gen.ctl = new AbortController(); gen.live = '';
+  return sample(prompt, { signal: gen.ctl.signal, cache: false, onText: u => { gen.live = u.text; paintStatus(); } });
+}
+async function runGen(label, fn){
+  if (!sample) { toast('Claude tidak tersedia di tampilan ini. Pakai tombol Salin.'); return; }
+  if (gen.busy) { toast('Masih ada proses berjalan.'); return; }
+  gen = { busy:true, label, live:'', err:'', ctl:null };
+  paintStatus();
+  let ok = true;
+  try { await fn(); }
+  catch(e){ ok = false; if (!(e && e.code === 'cancelled')) gen.err = errCopy(e); }
+  gen.busy = false; gen.live = ''; paintStatus(); render();
+  if (ok) toast('Selesai.');
+}
+function genTitle(){
+  return runGen('Membuat judul dan Story Bible', async () => {
+    const r = await ask(cmdTitle() + FMT_TITLE);
+    const t = r.text;
+    const mT = t.match(/JUDUL TERPILIH:\**[ \t]*(.+)/i);
+    const mB = t.match(/STORY BIBLE:\**\s*([\s\S]*)$/i);
+    const mO = t.match(/PILIHAN JUDUL:\**\s*([\s\S]*?)(?=JUDUL TERPILIH)/i);
+    S.options = [];
+    if (mO) { const re = /^[ \t]*\d+\.[ \t]*(.+)$/gm; let m; while ((m = re.exec(mO[1]))) S.options.push(m[1].replace(/\*/g,'').trim()); }
+    if (mT) S.title = mT[1].replace(/[*"“”]/g,'').trim();
+    S.bible = mB ? mB[1].trim() : t.trim();
+    save();
+    if (r.truncated) toast('Story Bible terpotong, tekan lagi bila kurang lengkap.');
+  });
+}
+function genScenes(a, z){
+  let need = false; for (let n=a; n<=z; n++) if (!byN(n)) need = true;
+  if (!need) { toast('Scene '+pad(a)+' sampai '+pad(z)+' sudah ada.'); return; }
+  return runGen('Membuat scene '+pad(a)+' sampai '+pad(z), async () => {
+    for (let g=a; g<=z; g+=3) {
+      const e = Math.min(g+2, z); let nd = false;
+      for (let n=g; n<=e; n++) if (!byN(n)) nd = true;
+      if (!nd) continue;
+      gen.label = 'Membuat scene '+pad(g)+' sampai '+pad(e)+' (target '+pad(z)+')'; paintStatus();
+      const r = await ask(cmdRange(g, e) + FMT_SCENE);
+      const c = parseScenes(r.text); save();
+      if (!c) throw { code:'format' };
+      render();
+    }
+  });
+}
+function genResults(list, force){
+  const todo = list.filter(sc => force || !sc.result);
+  if (!todo.length) { toast('Semua scene sudah punya hasil.'); return; }
+  return runGen('Membuat hasil skill', async () => {
+    for (let i=0; i<todo.length; i++) {
+      const sc = todo[i], rec = recommend(), id = effId(sc, rec);
+      gen.label = 'Scene '+pad(sc.n)+' dengan Skill '+id+' ('+(i+1)+'/'+todo.length+')'; paintStatus();
+      const r = await ask(sceneCommand(sc, rec) + '\n\nKeluarkan hasil akhir sesuai FORMAT OUTPUT skill saja, tanpa kalimat pembuka atau penutup.');
+      sc.result = r.text.trim(); save(); render();
+    }
+  });
+}
+function finalPrompt(res){
+  if (!res) return '';
+  const m = res.match(/(?:FINAL[^\n]*PROMPT[^\n]*|PROMPT VIDEO[^\n]*)\n+([\s\S]*?)(?=\n[ \t*#]*(?:\d+\.\s|NEGATIVE)|$)/i);
+  const v = m ? m[1] : field(res, 10);
+  return v.replace(/^[\s"“*]+|[\s"”*]+$/g, '');
+}
+
+function nav(){
+  const names = ['Judul','Film','Rancang','Perintah'];
+  $('#stepper').innerHTML = names.map((n,i)=>'<button data-act="tab" data-i="'+i+'"'+(S.tab===i?' aria-current="step"':'')+'><b>'+(i+1)+'</b>'+n+'</button>').join('');
+}
+
+function tab0(){
+  return '<section class="card"><h2>1. Judul film dengan Skill 1</h2>' +
+    '<p class="hint">Tulis ide, salin perintah, tempel ke Claude atau generator teks. Hasilnya berisi pilihan judul dan Story Bible.</p>' +
+    '<label for="idea">Ide film</label><textarea id="idea" data-bind="idea" placeholder="Contoh: Mantan kurir motor di kota pelabuhan tropis harus membawa paket rahasia melewati semalam pengejaran.">'+esc(S.idea)+'</textarea>' +
+    '<div class="row"><div><label for="genre">Genre</label><select id="genre" data-bind="genre">'+GENRES.map(g=>'<option'+(g===S.genre?' selected':'')+'>'+g+'</option>').join('')+'</select></div>' +
+    '<div><label for="total">Jumlah scene</label><input type="number" id="total" min="1" max="500" data-bind="total" value="'+S.total+'"></div>' +
+    '<div><label for="ratio">Rasio</label><select id="ratio" data-bind="ratio"><option'+(S.ratio==='16:9'?' selected':'')+'>16:9</option><option'+(S.ratio==='9:16'?' selected':'')+'>9:16</option></select></div></div>' +
+    '<p class="hint" style="margin-top:10px">Total durasi: <strong>'+(S.total*5)+' detik</strong> ('+S.total+' scene x 5 detik)</p>' +
+    '<div class="actions">' + (sample ? '<button class="btn primary" data-act="gen-title">Buat judul + Story Bible dengan Claude</button><button class="btn" data-act="copy" data-what="title">Salin perintah saja</button>' : '<button class="btn primary" data-act="copy" data-what="title">Salin perintah Skill 1: judul + Story Bible</button>') + '</div></section>' +
+    '<section class="card"><h2>Hasil dari Skill 1</h2>' +
+    (S.options && S.options.length ? '<p class="hint" style="margin-bottom:0">Pilihan judul, tekan untuk memakai:</p><div class="opts">' + S.options.map((o,i)=>'<button data-act="pick" data-i="'+i+'" aria-pressed="'+(o.indexOf(S.title)===0 && !!S.title)+'">'+esc(o)+'</button>').join('') + '</div>' : '') +
+    '<label for="title">Judul film terpilih</label><input type="text" id="title" data-bind="title" value="'+esc(S.title)+'" placeholder="Judul yang kamu pilih">' +
+    '<label for="bible">Story Bible (tempel hasilnya)</label><textarea id="bible" class="mono" data-bind="bible" style="min-height:160px" placeholder="Logline, struktur 3 akt, Character Lock, Location Lock, Visual Style, Continuity Ledger">'+esc(S.bible)+'</textarea>' +
+    '<div class="actions"><button class="btn primary" data-act="tab" data-i="1">Lanjut ke tahap Film</button></div></section>';
+}
+
+function tab1(){
+  const batches = Math.ceil(S.total / BATCH);
+  let rows = '';
+  for (let b=1;b<=batches;b++){
+    const a=(b-1)*BATCH+1, z=Math.min(b*BATCH,S.total);
+    const have = S.scenes.filter(s=>s.n>=a && s.n<=z).length, need = z-a+1;
+    rows += '<div class="card" style="padding:12px"><div class="scene-head"><h3>Scene '+pad(a)+' sampai '+pad(z)+'</h3><span class="tc">'+fmt((a-1)*5)+' - '+fmt(z*5)+'</span><span class="chip'+(have>=need?' ok':'')+'">'+have+'/'+need+' tersimpan</span></div>' +
+      '<div class="actions" style="margin-top:8px">' + (sample ? '<button class="btn small primary" data-act="gen-batch" data-n="'+b+'">Buat dengan Claude</button>' : '') + '<button class="btn small" data-act="copy" data-what="batch" data-n="'+b+'">Salin perintah Skill 1</button></div></div>';
+  }
+  return '<section class="card"><h2>2. Film Hollywood per scene</h2>' +
+    '<p class="hint">Film '+esc(S.title||'tanpa judul')+' ditulis per 10 scene memakai Skill 1.' + (sample ? ' Tekan "Buat dengan Claude" dan scene terisi otomatis. Bisa juga salin perintah lalu tempel hasilnya di bawah.' : ' Salin perintah tiap batch, lalu tempel hasilnya di bawah.') + '</p>' +
+    (sample ? '<div class="actions" style="margin-top:0"><button class="btn primary" data-act="gen-all">Buat semua '+S.total+' scene</button></div>' : '') +
+    (S.bible.trim() ? '' : '<div class="warn">Story Bible belum diisi. Isi dulu di tahap Judul supaya karakter tidak berubah antar scene.</div>') + '</section>' +
+    rows +
+    '<section class="card"><h2>Tempel hasil scene</h2><p class="hint">Aplikasi memisahkan otomatis berdasarkan judul "SCENE 01", "SCENE 02", dan seterusnya. Scene dengan nomor sama akan diganti.</p>' +
+    '<textarea id="paste" class="mono" style="min-height:180px" placeholder="SCENE 01 | 00:00-00:05 | ..."></textarea>' +
+    '<div class="actions"><button class="btn primary" data-act="parse">Pisahkan ke scene</button>' +
+    '<button class="btn danger" data-act="clear">'+(confirmClear?'Yakin hapus semua scene?':'Hapus semua scene')+'</button></div>' +
+    '<p class="hint" style="margin:10px 0 0">Tersimpan: <strong>'+S.scenes.length+'</strong> scene dari '+S.total+'.</p></section>';
+}
+
+function tab2(){
+  const list = sorted();
+  if (!list.length) return emptyState('Belum ada scene. Tempel hasil Skill 1 di tahap Film dulu.');
+  const rec = recommend();
+  const cards = list.map(sc=>{
+    const id = effId(sc, rec), sk = SK[id], s0=(sc.n-1)*5;
+    const opts = '<option value="auto"'+(sc.over==null?' selected':'')+'>Otomatis (Skill '+rec[sc.n].id+')</option>' +
+      [7,1,2,3,4,5,6,8].map(k=>'<option value="'+k+'"'+(sc.over===k?' selected':'')+'>Skill '+k+': '+SK[k].name+'</option>').join('');
+    return '<article class="card scene"><div class="scene-head"><h3>Scene '+pad(sc.n)+'</h3><span class="tc">'+fmt(s0)+'-'+fmt(s0+5)+'</span><span class="chip">Skill '+id+' · '+esc(sk.name)+'</span></div>' +
+      '<p class="story">'+esc(storyOf(sc).slice(0,220))+'</p>' +
+      '<p class="why">'+(sc.over!=null?'Dipilih manual.':esc(rec[sc.n].why))+'</p>' +
+      (sk.dur!==5 ? '<div class="warn">Skill ini bawaannya '+sk.dur+' detik, '+sk.ratio+'. '+(S.adjust?'Perintah otomatis disesuaikan ke 5 detik.':'Perintah memakai ukuran asli skill.')+'</div>' : '') +
+      '<label for="sel'+sc.n+'" style="margin:4px 0 0">Ganti skill</label><select id="sel'+sc.n+'" data-sel="'+sc.n+'">'+opts+'</select></article>';
+  }).join('');
+  const legend = [[1,'Hollywood padat, 5 dtk, 16:9'],[2,'Open-world satu judul, 6 dtk, 9:16'],[3,'Lanjutan video, 6 dtk'],[4,'Fight 1 pembuka'],[5,'Fight 2 lanjutan'],[6,'Fight 3 klimaks'],[7,'Hollywood lengkap, 5 dtk'],[8,'Romantis dewasa, non-eksplisit']]
+    .map(x=>'<div><b>Skill '+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+  return '<section class="card"><h2>3. Rancang skill per scene</h2><p class="hint">Tiap scene sudah dicocokkan otomatis dari isi ceritanya. Ganti bila perlu.</p>' +
+    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:500;margin:0"><input type="checkbox" id="adj" data-adj'+(S.adjust?' checked':'')+' style="margin-top:4px"> <span>Sesuaikan skill 6 detik (Skill 2 sampai 6) ke 5 detik dan rasio film</span></label>' +
+    '<details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600;font-size:14px">Daftar skill</summary><div class="legend" style="margin-top:8px">'+legend+'</div></details></section>' + cards +
+    '<div class="actions"><button class="btn primary" data-act="tab" data-i="3">Lanjut ke Perintah</button></div>';
+}
+
+function tab3(){
+  const list = sorted();
+  if (!list.length) return emptyState('Belum ada scene untuk dibuatkan perintah.');
+  const rec = recommend(), done = list.filter(s=>s.done).length;
+  const rows = list.map(sc=>{
+    const id = effId(sc, rec), sk = SK[id], s0=(sc.n-1)*5, vp = videoPrompt(sc), fp = finalPrompt(sc.result);
+    const prev = openPrev === sc.n ?
+      (sc.result ? '<label for="rs'+sc.n+'">Hasil skill (tekan lama untuk menyalin manual)</label><textarea id="rs'+sc.n+'" class="mono" readonly style="min-height:260px">'+esc(sc.result)+'</textarea>' : '') +
+      '<label for="pv'+sc.n+'">Perintah lengkap</label><textarea id="pv'+sc.n+'" class="mono" readonly style="min-height:200px">'+esc(sceneCommand(sc, rec))+'</textarea>' : '';
+    return '<article class="card scene"><div class="scene-head"><h3>Scene '+pad(sc.n)+'</h3><span class="tc">'+fmt(s0)+'-'+fmt(s0+5)+'</span><span class="chip'+(sc.done?' ok':'')+'">'+(sc.done?'Selesai':'Skill '+id+' · '+esc(sk.name))+'</span></div>' +
+      '<p class="story">'+esc(storyOf(sc).slice(0,160))+'</p>' +
+      '<div class="actions" style="margin:0">' +
+      (sample ? '<button class="btn small primary" data-act="gen-one" data-n="'+sc.n+'">'+(sc.result?'Buat ulang':'Buat dengan Claude')+'</button>' : '') +
+      (sc.result ? '<button class="btn small primary" data-act="copy" data-what="result" data-n="'+sc.n+'">Salin hasil</button>' : '') +
+      (fp ? '<button class="btn small" data-act="copy" data-what="final" data-n="'+sc.n+'">Salin prompt final</button>' : '') +
+      '<button class="btn small'+(sample||sc.result?'':' primary')+'" data-act="copy" data-what="scene" data-n="'+sc.n+'">Salin perintah + Skill '+id+'</button>' +
+      (vp && !sc.result ?'<button class="btn small" data-act="copy" data-what="video" data-n="'+sc.n+'">Salin prompt video</button>':'') +
+      '<button class="btn small" data-act="copy" data-what="neg">Negative prompt</button>' +
+      '<button class="btn small" data-act="prev" data-n="'+sc.n+'">'+(openPrev===sc.n?'Tutup':'Lihat')+'</button>' +
+      '<button class="btn small" data-act="done" data-n="'+sc.n+'" aria-pressed="'+(!!sc.done)+'">'+(sc.done?'Batalkan selesai':'Tandai selesai')+'</button></div>' + prev + '</article>';
+  }).join('');
+  return '<section class="card"><h2>4. Perintah siap salin</h2><p class="hint">Satu tombol menyalin skill terpilih, data film, dan detail scene. Tempel langsung ke Claude, lalu pakai hasilnya di generator video.</p>' +
+    '<div class="stats"><span>Selesai <strong>'+done+'/'+list.length+'</strong></span><span>Durasi film <strong>'+fmt(S.total*5)+'</strong></span><span>Hasil Claude <strong>'+list.filter(s=>s.result).length+'/'+list.length+'</strong></span></div><div class="bar"><i style="width:'+Math.round(done/list.length*100)+'%"></i></div>' +
+    (sample ? '<div class="actions"><button class="btn primary" data-act="gen-results">Buat hasil semua scene dengan Claude</button></div>' : '') + '</section>' + rows;
+}
+function emptyState(msg){
+  return '<section class="card empty"><p>'+msg+'</p><button class="btn primary" data-act="tab" data-i="1">Ke tahap Film</button></section>';
+}
+
+function render(){
+  nav();
+  $('#view').innerHTML = [tab0,tab1,tab2,tab3][S.tab]();
+}
+
+async function copyText(text){
+  try { await navigator.clipboard.writeText(text); return true; } catch(e) {}
+  try {
+    const t = document.createElement('textarea'); t.value = text; t.style.cssText='position:fixed;opacity:0;top:0';
+    document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); return ok;
+  } catch(e) { return false; }
+}
+
+function parseScenes(raw){
+  const text = raw.replace(/\r/g,'').trim();
+  if (!text) return 0;
+  const parts = text.split(/(?=^[ \t]*[#*]*[ \t]*SCENE[ \t]+\d+)/im).filter(p=>/SCENE[ \t]+\d+/i.test(p.split('\n')[0]));
+  let added = 0;
+  if (!parts.length) {
+    const n = S.scenes.length ? Math.max.apply(null, S.scenes.map(s=>s.n)) + 1 : 1;
+    S.scenes.push({ n, text, over:null, done:false }); return 1;
+  }
+  parts.forEach(p=>{
+    const n = parseInt(p.match(/SCENE[ \t]+(\d+)/i)[1],10);
+    const old = byN(n), body = p.trim();
+    if (old) { old.text = body; } else { S.scenes.push({ n, text: body, over:null, done:false }); }
+    added++;
+  });
+  return added;
+}
+
+document.addEventListener('input', e=>{
+  const t = e.target, k = t.dataset && t.dataset.bind;
+  if (!k) return;
+  if (k === 'total') S.total = Math.max(1, Math.min(500, parseInt(t.value,10) || 1)); else S[k] = t.value;
+  save();
+  if (k === 'total') { const h = t.closest('.card').querySelector('.hint strong'); if (h) h.textContent = (S.total*5)+' detik'; }
+});
+document.addEventListener('change', e=>{
+  const t = e.target;
+  if (t.dataset && t.dataset.sel){
+    const sc = byN(parseInt(t.dataset.sel,10)); if (!sc) return;
+    sc.over = t.value === 'auto' ? null : parseInt(t.value,10); save(); render();
+  } else if (t.dataset && t.dataset.adj !== undefined){
+    S.adjust = t.checked; save(); render();
+  } else if (t.dataset && (t.dataset.bind === 'genre' || t.dataset.bind === 'ratio')) { S[t.dataset.bind] = t.value; save(); }
+});
+document.addEventListener('click', async e=>{
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, n = parseInt(b.dataset.n,10);
+  if (act === 'tab') { S.tab = parseInt(b.dataset.i,10); confirmClear = false; save(); render(); window.scrollTo(0,0); }
+  else if (act === 'copy') {
+    const w = b.dataset.what; let text = '';
+    if (w === 'title') text = cmdTitle();
+    else if (w === 'batch') text = cmdBatch(n);
+    else if (w === 'neg') text = NEG;
+    else { const sc = byN(n); if (!sc) return; text = w === 'video' ? videoPrompt(sc) : w === 'result' ? (sc.result || '') : w === 'final' ? finalPrompt(sc.result) : sceneCommand(sc, recommend()); }
+    if (!text) { toast('Belum ada teks untuk disalin.'); return; }
+    const ok = await copyText(text);
+    toast(ok ? 'Tersalin. Tempel ke Claude atau generator.' : 'Gagal menyalin. Buka "Lihat" lalu tekan lama teksnya.');
+  }
+  else if (act === 'parse') {
+    const ta = $('#paste'); const c = parseScenes(ta.value);
+    if (!c) { toast('Tidak ada teks untuk dipisahkan.'); return; }
+    ta.value = ''; save(); render(); toast(c + ' scene tersimpan.');
+  }
+  else if (act === 'clear') {
+    if (!confirmClear) { confirmClear = true; render(); return; }
+    S.scenes = []; confirmClear = false; save(); render(); toast('Semua scene dihapus.');
+  }
+  else if (act === 'gen-title') genTitle();
+  else if (act === 'gen-batch') genScenes((n-1)*BATCH+1, Math.min(n*BATCH, S.total));
+  else if (act === 'gen-all') genScenes(1, S.total);
+  else if (act === 'gen-one') { const sc = byN(n); if (sc) genResults([sc], true); }
+  else if (act === 'gen-results') genResults(sorted(), false);
+  else if (act === 'pick') { const o = (S.options || [])[parseInt(b.dataset.i,10)]; if (o) { S.title = o.split(/\s+[-–—]\s+/)[0].replace(/[*"“”]/g,'').trim(); save(); render(); } }
+  else if (act === 'stop') { if (gen.ctl) gen.ctl.abort(); }
+  else if (act === 'dismiss') { gen.err = ''; paintStatus(); }
+  else if (act === 'prev') { openPrev = openPrev === n ? null : n; render(); }
+  else if (act === 'done') { const sc = byN(n); if (sc) { sc.done = !sc.done; save(); render(); } }
+});
+render();
+(async () => {
+  try { if (window.claude && window.claude.use) sample = await window.claude.use('sample'); } catch(e) { sample = null; }
+  const a = document.activeElement;
+  if (sample && !(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) render();
+})();
+</script>
+
+</body></html>
